@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notes</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="toolbar">
+        <div class="toolbar__left">
+          <button id="btnAdd" class="tool-button primary">Add</button>
+          <button id="btnPaste" class="tool-button">Paste</button>
+          <button id="btnGroup" class="tool-button">Group</button>
+          <button id="btnCopy" class="tool-button">Copy</button>
+          <button id="btnDelete" class="tool-button danger">Delete</button>
+        </div>
+        <div class="toolbar__center">
+          <button id="btnUndo" class="tool-button">Undo</button>
+          <button id="btnRedo" class="tool-button">Redo</button>
+          <button id="btnSave" class="tool-button">Save</button>
+          <button id="btnExport" class="tool-button">Export</button>
+          <button id="btnImport" class="tool-button">Import</button>
+        </div>
+        <div class="toolbar__right">
+          <button id="btnSettings" class="tool-button">Settings</button>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="sidebar__section">
+            <label class="field-label" for="searchInput">Search</label>
+            <input id="searchInput" class="text-input" type="text" placeholder="Title, content, tags" />
+          </div>
+          <div class="sidebar__section sidebar__section--grow">
+            <div class="sidebar__header">
+              <span>Notes</span>
+              <span id="noteCount" class="muted">0</span>
+            </div>
+            <div id="noteList" class="note-list"></div>
+          </div>
+        </aside>
+
+        <main class="canvas" id="canvas">
+          <div id="groupLayer" class="group-layer"></div>
+          <div id="noteLayer" class="note-layer"></div>
+          <div id="selectionBox" class="selection-box hidden"></div>
+        </main>
+      </div>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay hidden"></div>
+
+    <template id="noteTemplate">
+      <div class="note">
+        <div class="note__header">
+          <span class="note__title"></span>
+          <span class="note__meta"></span>
+        </div>
+        <div class="note__content"></div>
+      </div>
+    </template>
+
+    <template id="groupTemplate">
+      <div class="group-box">
+        <div class="group-box__header">
+          <span class="group-box__title"></span>
+        </div>
+        <div class="group-box__resize group-box__resize--nw" data-dir="nw"></div>
+        <div class="group-box__resize group-box__resize--n" data-dir="n"></div>
+        <div class="group-box__resize group-box__resize--ne" data-dir="ne"></div>
+        <div class="group-box__resize group-box__resize--e" data-dir="e"></div>
+        <div class="group-box__resize group-box__resize--se" data-dir="se"></div>
+        <div class="group-box__resize group-box__resize--s" data-dir="s"></div>
+        <div class="group-box__resize group-box__resize--sw" data-dir="sw"></div>
+        <div class="group-box__resize group-box__resize--w" data-dir="w"></div>
+      </div>
+    </template>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

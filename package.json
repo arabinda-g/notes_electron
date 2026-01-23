@@ -1,0 +1,14 @@
+{
+  "name": "notes-electron",
+  "version": "1.0.0",
+  "description": "Notes Electron app",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "latest"
+  }
+}
