@@ -9,64 +9,38 @@
   </head>
   <body>
     <div id="app" class="app">
-      <header class="toolbar">
-        <div class="toolbar__left">
-          <button id="btnAdd" class="tool-button primary">Add</button>
-          <button id="btnPaste" class="tool-button">Paste</button>
-          <button id="btnGroup" class="tool-button">Group</button>
-          <button id="btnCopy" class="tool-button">Copy</button>
-          <button id="btnDelete" class="tool-button danger">Delete</button>
-        </div>
-        <div class="toolbar__center">
-          <button id="btnUndo" class="tool-button">Undo</button>
-          <button id="btnRedo" class="tool-button">Redo</button>
-          <button id="btnSave" class="tool-button">Save</button>
-          <button id="btnExport" class="tool-button">Export</button>
-          <button id="btnImport" class="tool-button">Import</button>
-        </div>
-        <div class="toolbar__right">
-          <button id="btnSettings" class="tool-button">Settings</button>
-        </div>
-      </header>
+      <div class="menu-bar" role="menubar">
+        <div class="menu-item" data-menu="file" tabindex="0">File</div>
+        <div class="menu-item" data-menu="edit" tabindex="0">Edit</div>
+        <div class="menu-item" data-menu="view" tabindex="0">View</div>
+        <div class="menu-item" data-menu="help" tabindex="0">Help</div>
+      </div>
 
-      <div class="layout">
-        <aside class="sidebar">
-          <div class="sidebar__section">
-            <label class="field-label" for="searchInput">Search</label>
-            <input id="searchInput" class="text-input" type="text" placeholder="Title, content, tags" />
-          </div>
-          <div class="sidebar__section sidebar__section--grow">
-            <div class="sidebar__header">
-              <span>Notes</span>
-              <span id="noteCount" class="muted">0</span>
-            </div>
-            <div id="noteList" class="note-list"></div>
-          </div>
-        </aside>
+      <div id="menuDropdown" class="menu-dropdown hidden"></div>
 
-        <main class="canvas" id="canvas">
-          <div id="groupLayer" class="group-layer"></div>
-          <div id="noteLayer" class="note-layer"></div>
-          <div id="selectionBox" class="selection-box hidden"></div>
-        </main>
+      <div class="panel-container" id="panelContainer">
+        <div id="groupLayer" class="group-layer"></div>
+        <div id="noteLayer" class="note-layer"></div>
+        <div id="selectionBox" class="selection-box hidden"></div>
+      </div>
+
+      <div class="status-strip">
+        <span id="statusLabel">Starting...</span>
       </div>
     </div>
 
     <div id="modalOverlay" class="modal-overlay hidden"></div>
+    <div id="contextMenu" class="context-menu hidden"></div>
 
     <template id="noteTemplate">
-      <div class="note">
-        <div class="note__header">
-          <span class="note__title"></span>
-          <span class="note__meta"></span>
-        </div>
-        <div class="note__content"></div>
-      </div>
+      <button class="note" type="button">
+        <span class="note__text"></span>
+      </button>
     </template>
 
     <template id="groupTemplate">
       <div class="group-box">
-        <div class="group-box__header">
+        <div class="group-box__legend">
           <span class="group-box__title"></span>
         </div>
         <div class="group-box__resize group-box__resize--nw" data-dir="nw"></div>
