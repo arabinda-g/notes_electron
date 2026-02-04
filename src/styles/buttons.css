@@ -1,0 +1,402 @@
+/* Note Button Styles */
+
+/* Base Button */
+.note-button {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.note-button:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.note-button:active {
+    transform: translateY(1px);
+}
+
+/* 1. Gradient Button */
+.note-button.style-gradient {
+    background: linear-gradient(180deg, #6495ED 0%, #4169E1 100%);
+    border: 2px solid #191970;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.note-button.style-gradient::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 10%;
+    right: 10%;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 8px 8px 50% 50%;
+    pointer-events: none;
+}
+
+/* 2. Neon Glow Button */
+.note-button.style-neon-glow {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #00FF7F;
+    border-radius: 4px;
+    box-shadow: 0 0 5px #00FF7F, inset 0 0 10px rgba(0, 255, 127, 0.1);
+    color: #00FF7F;
+}
+
+.note-button.style-neon-glow:hover {
+    box-shadow: 0 0 10px #00FF7F, 0 0 20px rgba(0, 255, 127, 0.5), inset 0 0 15px rgba(0, 255, 127, 0.2);
+}
+
+/* 3. Material Button */
+.note-button.style-material {
+    background-color: #2196F3;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.note-button.style-material:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.26);
+}
+
+.note-button.style-material:active {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.26);
+    transform: translateY(2px);
+}
+
+/* 4. Glass Morphism Button */
+.note-button.style-glass {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    color: #1E1E1E;
+}
+
+.note-button.style-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 12px 12px 0 0;
+    pointer-events: none;
+}
+
+/* 5. Neumorphism Button */
+.note-button.style-neumorphism {
+    background: #E0E5EC;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 9px 9px 16px #a3b1c6, -9px -9px 16px #ffffff;
+    color: #666;
+}
+
+.note-button.style-neumorphism:active {
+    box-shadow: inset 5px 5px 10px #a3b1c6, inset -5px -5px 10px #ffffff;
+}
+
+/* 6. Retro 3D Button */
+.note-button.style-retro-3d {
+    background: linear-gradient(180deg, #C0C0C0 0%, #A0A0A0 100%);
+    border: none;
+    border-radius: 0;
+    box-shadow: 
+        inset -1px -1px 0 #808080,
+        inset 1px 1px 0 #FFFFFF,
+        2px 2px 0 #808080,
+        3px 3px 0 #606060,
+        4px 4px 0 #404040;
+}
+
+.note-button.style-retro-3d:active {
+    box-shadow: 
+        inset 1px 1px 0 #808080,
+        inset -1px -1px 0 #FFFFFF;
+    transform: translate(4px, 4px);
+}
+
+/* 7. Premium Card Button */
+.note-button.style-premium-card {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8F8F8 100%);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    color: #333;
+}
+
+.note-button.style-premium-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px 10px 0 0;
+}
+
+.note-button.style-premium-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 2px 5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* 8. Outline Button */
+.note-button.style-outline {
+    background: transparent;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.note-button.style-outline:hover {
+    background: currentColor;
+    box-shadow: none;
+}
+
+.note-button.style-outline:hover .note-button-text {
+    filter: invert(1);
+}
+
+/* 9. Pill Button */
+.note-button.style-pill {
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 100px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    color: #FFFFFF;
+}
+
+.note-button.style-pill:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+/* 10. Skeuomorphic Button */
+.note-button.style-skeuomorphic {
+    background: linear-gradient(180deg, #F5F5F5 0%, #D0D0D0 50%, #C0C0C0 100%);
+    border: 1px solid #999;
+    border-radius: 8px;
+    box-shadow: 
+        0 3px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.note-button.style-skeuomorphic::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5%;
+    right: 5%;
+    height: 45%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+.note-button.style-skeuomorphic:active {
+    background: linear-gradient(180deg, #C0C0C0 0%, #D0D0D0 50%, #F5F5F5 100%);
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.2),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Color-based Styles */
+.note-button.style-classic-blue {
+    background: linear-gradient(180deg, #3498DB 0%, #2980B9 100%);
+    border: 1px solid #1A5276;
+    color: #FFFFFF;
+}
+
+.note-button.style-pastel-pink {
+    background: linear-gradient(180deg, #FADBD8 0%, #F5B7B1 100%);
+    border: 1px solid #E74C3C;
+    color: #922B21;
+}
+
+.note-button.style-dark-mode {
+    background: linear-gradient(180deg, #2C3E50 0%, #1A252F 100%);
+    border: 1px solid #1C2833;
+    color: #ECF0F1;
+}
+
+.note-button.style-neon-green {
+    background: linear-gradient(180deg, #27AE60 0%, #1E8449 100%);
+    border: 1px solid #145A32;
+    color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
+}
+
+.note-button.style-earth-tones {
+    background: linear-gradient(180deg, #D4AC6E 0%, #B8860B 100%);
+    border: 1px solid #8B6914;
+    color: #3E2723;
+}
+
+.note-button.style-ocean-blue {
+    background: linear-gradient(180deg, #5DADE2 0%, #2E86C1 100%);
+    border: 1px solid #1A5276;
+    color: #FFFFFF;
+}
+
+.note-button.style-sunset-orange {
+    background: linear-gradient(180deg, #F39C12 0%, #E67E22 100%);
+    border: 1px solid #BA4A00;
+    color: #FFFFFF;
+}
+
+.note-button.style-monochrome {
+    background: linear-gradient(180deg, #BDC3C7 0%, #95A5A6 100%);
+    border: 1px solid #7F8C8D;
+    color: #2C3E50;
+}
+
+.note-button.style-vibrant-purple {
+    background: linear-gradient(180deg, #9B59B6 0%, #8E44AD 100%);
+    border: 1px solid #6C3483;
+    color: #FFFFFF;
+}
+
+/* 3D Effect Styles */
+.note-button.style-3d-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3), 0 6px 6px rgba(102, 126, 234, 0.2);
+    color: #FFFFFF;
+}
+
+.note-button.style-glossy-3d {
+    background: linear-gradient(180deg, #74b9ff 0%, #0984e3 50%, #0652DD 100%);
+    border: 1px solid #0652DD;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(9, 132, 227, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    color: #FFFFFF;
+}
+
+.note-button.style-embossed {
+    background: #E0E0E0;
+    border: none;
+    border-radius: 6px;
+    box-shadow: 
+        inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.1),
+        4px 4px 8px rgba(0, 0, 0, 0.15);
+    color: #555;
+}
+
+.note-button.style-raised-button {
+    background: linear-gradient(180deg, #FAFAFA 0%, #E0E0E0 100%);
+    border: 1px solid #BDBDBD;
+    border-radius: 6px;
+    box-shadow: 
+        0 4px 0 #BDBDBD,
+        0 5px 3px rgba(0, 0, 0, 0.2);
+    color: #424242;
+}
+
+.note-button.style-raised-button:active {
+    box-shadow: 0 1px 0 #BDBDBD;
+    transform: translateY(3px);
+}
+
+.note-button.style-inset-shadow {
+    background: #F5F5F5;
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.1), inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+    color: #555;
+}
+
+/* Theme Styles */
+.note-button.style-retro-80s {
+    background: linear-gradient(180deg, #FF6B6B 0%, #C44569 100%);
+    border: 3px solid #FFF;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000;
+    color: #FFF;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.note-button.style-cyberpunk {
+    background: linear-gradient(135deg, #0D0D0D 0%, #1A1A2E 100%);
+    border: 2px solid #00D9FF;
+    border-radius: 2px;
+    box-shadow: 
+        0 0 10px rgba(0, 217, 255, 0.5),
+        inset 0 0 20px rgba(0, 217, 255, 0.1);
+    color: #00D9FF;
+    text-shadow: 0 0 5px #00D9FF;
+}
+
+.note-button.style-glassmorphism {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.note-button.style-golden-premium {
+    background: linear-gradient(180deg, #F7DC6F 0%, #D4AC0D 50%, #B7950B 100%);
+    border: 2px solid #7D6608;
+    border-radius: 8px;
+    box-shadow: 
+        0 4px 15px rgba(212, 172, 13, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    color: #5D4E00;
+}
+
+/* Text Styles */
+.note-button.style-minimal-clean {
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    color: #333;
+}
+
+.note-button.style-bold-impact {
+    background: #1A1A1A;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    color: #FFFFFF;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.note-button.style-elegant-serif {
+    background: linear-gradient(180deg, #FDFBF9 0%, #F5F0EB 100%);
+    border: 1px solid #D4C5B5;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: #4A3728;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+.note-button.style-playful-comic {
+    background: linear-gradient(180deg, #FFE66D 0%, #FFD93D 100%);
+    border: 3px solid #333;
+    border-radius: 12px;
+    box-shadow: 3px 3px 0 #333;
+    color: #333;
+    font-family: 'Comic Sans MS', cursive;
+}
+
+.note-button.style-professional {
+    background: linear-gradient(180deg, #34495E 0%, #2C3E50 100%);
+    border: 1px solid #1C2833;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #ECF0F1;
+}

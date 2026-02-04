@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <title>Notes</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/buttons.css">
+    <link rel="stylesheet" href="styles/groups.css">
+    <link rel="stylesheet" href="styles/dialogs.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div id="app">
+        <!-- Panel Container (scrollable area for notes and groups) -->
+        <div id="panel-container">
+            <!-- Notes and groups will be dynamically added here -->
+        </div>
+        
+        <!-- Status Bar -->
+        <div id="status-bar">
+            <span id="status-label"></span>
+        </div>
+    </div>
+
+    <!-- Add Note Dialog -->
+    <div id="add-note-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <div class="dialog-title">Add Note</div>
+            <div class="dialog-content">
+                <div class="form-row">
+                    <label for="add-title">Title:</label>
+                    <input type="text" id="add-title" maxlength="100" placeholder="Enter note title">
+                </div>
+                <div class="form-row">
+                    <label for="add-group">Group:</label>
+                    <select id="add-group">
+                        <option value="">(None)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="add-bg-color">Background:</label>
+                    <input type="color" id="add-bg-color" value="#6495ED">
+                    <button type="button" class="color-btn" id="add-bg-color-btn" style="background-color: #6495ED;"></button>
+                </div>
+                <div class="form-row">
+                    <label for="add-text-color">Text Color:</label>
+                    <input type="color" id="add-text-color" value="#FFFFFF">
+                    <button type="button" class="color-btn" id="add-text-color-btn" style="background-color: #FFFFFF;"></button>
+                </div>
+                <div class="form-row">
+                    <label for="add-font">Font:</label>
+                    <button type="button" id="add-font-btn" class="font-btn">Segoe UI, 12pt</button>
+                </div>
+                <div class="form-row">
+                    <label for="add-content-type">Content Type:</label>
+                    <select id="add-content-type">
+                        <option value="Text">Text</option>
+                        <option value="Image">Image</option>
+                        <option value="Object">Object</option>
+                    </select>
+                </div>
+                <div class="form-row content-row">
+                    <label for="add-content">Content:</label>
+                    <div id="add-content-panels">
+                        <div id="add-text-panel" class="content-panel active">
+                            <textarea id="add-content" rows="5" placeholder="Enter note content"></textarea>
+                        </div>
+                        <div id="add-image-panel" class="content-panel">
+                            <button type="button" id="add-paste-image" class="paste-btn">Paste Image from Clipboard</button>
+                            <div id="add-image-preview" class="image-preview"></div>
+                        </div>
+                        <div id="add-object-panel" class="content-panel">
+                            <button type="button" id="add-paste-object" class="paste-btn">Paste Object from Clipboard</button>
+                            <div id="add-object-summary" class="object-summary"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button type="button" id="add-save-btn" class="btn btn-primary">Save</button>
+                <button type="button" id="add-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Note Dialog -->
+    <div id="edit-note-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <div class="dialog-title">Edit Note</div>
+            <div class="dialog-content">
+                <div class="form-row">
+                    <label for="edit-title">Title:</label>
+                    <input type="text" id="edit-title" maxlength="100" placeholder="Enter note title">
+                </div>
+                <div class="form-row">
+                    <label for="edit-group">Group:</label>
+                    <select id="edit-group">
+                        <option value="">(None)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="edit-bg-color">Background:</label>
+                    <input type="color" id="edit-bg-color" value="#6495ED">
+                    <button type="button" class="color-btn" id="edit-bg-color-btn" style="background-color: #6495ED;"></button>
+                </div>
+                <div class="form-row">
+                    <label for="edit-text-color">Text Color:</label>
+                    <input type="color" id="edit-text-color" value="#FFFFFF">
+                    <button type="button" class="color-btn" id="edit-text-color-btn" style="background-color: #FFFFFF;"></button>
+                </div>
+                <div class="form-row">
+                    <label for="edit-font">Font:</label>
+                    <button type="button" id="edit-font-btn" class="font-btn">Segoe UI, 12pt</button>
+                </div>
+                <div class="form-row">
+                    <label for="edit-content-type">Content Type:</label>
+                    <select id="edit-content-type">
+                        <option value="Text">Text</option>
+                        <option value="Image">Image</option>
+                        <option value="Object">Object</option>
+                    </select>
+                </div>
+                <div class="form-row content-row">
+                    <label for="edit-content">Content:</label>
+                    <div id="edit-content-panels">
+                        <div id="edit-text-panel" class="content-panel active">
+                            <textarea id="edit-content" rows="5" placeholder="Enter note content"></textarea>
+                        </div>
+                        <div id="edit-image-panel" class="content-panel">
+                            <button type="button" id="edit-paste-image" class="paste-btn">Paste Image from Clipboard</button>
+                            <div id="edit-image-preview" class="image-preview"></div>
+                        </div>
+                        <div id="edit-object-panel" class="content-panel">
+                            <button type="button" id="edit-paste-object" class="paste-btn">Paste Object from Clipboard</button>
+                            <div id="edit-object-summary" class="object-summary"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button type="button" id="edit-save-btn" class="btn btn-primary">Save</button>
+                <button type="button" id="edit-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Group Dialog -->
+    <div id="group-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog dialog-group">
+            <div class="dialog-title" id="group-dialog-title">Add Group</div>
+            <div class="dialog-content">
+                <div class="form-row">
+                    <label for="group-title">Title:</label>
+                    <input type="text" id="group-title" maxlength="100" placeholder="Enter group title">
+                </div>
+                <div class="form-row">
+                    <label for="group-x">X:</label>
+                    <input type="number" id="group-x" min="0" max="9999" value="50">
+                </div>
+                <div class="form-row">
+                    <label for="group-y">Y:</label>
+                    <input type="number" id="group-y" min="0" max="9999" value="50">
+                </div>
+                <div class="form-row">
+                    <label for="group-width">Width:</label>
+                    <input type="number" id="group-width" min="100" max="2000" value="300">
+                </div>
+                <div class="form-row">
+                    <label for="group-height">Height:</label>
+                    <input type="number" id="group-height" min="80" max="2000" value="200">
+                </div>
+                <div class="form-row">
+                    <label for="group-border-color">Border:</label>
+                    <input type="color" id="group-border-color" value="#3498DB">
+                    <button type="button" class="color-btn" id="group-border-color-btn" style="background-color: #3498DB;"></button>
+                </div>
+                <div class="form-row">
+                    <label for="group-bg-color">Background:</label>
+                    <input type="color" id="group-bg-color" value="#ECF0F1">
+                    <button type="button" class="color-btn" id="group-bg-color-btn" style="background-color: #ECF0F1;"></button>
+                </div>
+                <div class="form-row">
+                    <label for="group-text-color">Text Color:</label>
+                    <input type="color" id="group-text-color" value="#2C3E50">
+                    <button type="button" class="color-btn" id="group-text-color-btn" style="background-color: #2C3E50;"></button>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button type="button" id="group-save-btn" class="btn btn-primary">Save</button>
+                <button type="button" id="group-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Dialog -->
+    <div id="settings-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog dialog-large">
+            <div class="dialog-title">Settings</div>
+            <div class="dialog-content">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="general">General</button>
+                    <button class="tab-btn" data-tab="hotkeys">Hotkeys</button>
+                    <button class="tab-btn" data-tab="window">Window</button>
+                    <button class="tab-btn" data-tab="style">Default Style</button>
+                    <button class="tab-btn" data-tab="backup">Backup</button>
+                    <button class="tab-btn" data-tab="advanced">Advanced</button>
+                </div>
+                
+                <div class="tab-content active" id="tab-general">
+                    <div class="settings-group">
+                        <h3>Auto Save</h3>
+                        <div class="form-row">
+                            <label><input type="checkbox" id="setting-autosave"> Enable Auto Save</label>
+                        </div>
+                        <div class="form-row">
+                            <label for="setting-autosave-interval">Interval (seconds):</label>
+                            <input type="number" id="setting-autosave-interval" min="5" max="300" value="30">
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>Confirmations</h3>
+                        <div class="form-row"><label><input type="checkbox" id="setting-confirm-delete"> Confirm before delete</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-confirm-reset"> Confirm before reset</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-confirm-exit"> Confirm before exit</label></div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>System Tray</h3>
+                        <div class="form-row"><label><input type="checkbox" id="setting-show-tray"> Show tray icon</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-minimize-to-tray"> Minimize to tray</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-close-to-tray"> Close to tray</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-start-minimized"> Start minimized</label></div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>Theme</h3>
+                        <div class="form-row">
+                            <label for="setting-theme">Theme:</label>
+                            <select id="setting-theme">
+                                <option value="SystemDefault">System Default</option>
+                                <option value="Light">Light</option>
+                                <option value="Dark">Dark</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-hotkeys">
+                    <div class="settings-group">
+                        <h3>Global Hotkey</h3>
+                        <div class="form-row"><label><input type="checkbox" id="setting-hotkey-enabled"> Enable global hotkey</label></div>
+                        <div class="form-row">
+                            <label>Modifiers:</label>
+                            <label class="modifier-label"><input type="checkbox" id="setting-mod-ctrl" checked> Ctrl</label>
+                            <label class="modifier-label"><input type="checkbox" id="setting-mod-alt" checked> Alt</label>
+                            <label class="modifier-label"><input type="checkbox" id="setting-mod-shift"> Shift</label>
+                        </div>
+                        <div class="form-row">
+                            <label for="setting-hotkey">Key:</label>
+                            <select id="setting-hotkey">
+                                <option value="N">N</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-window">
+                    <div class="settings-group">
+                        <h3>Window Behavior</h3>
+                        <div class="form-row"><label><input type="checkbox" id="setting-remember-position"> Remember window position</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-remember-size"> Remember window size</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-always-on-top"> Always on top</label></div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-style">
+                    <div class="settings-group">
+                        <h3>Default Note Style</h3>
+                        <div class="form-row">
+                            <label for="setting-unit-bg">Background:</label>
+                            <input type="color" id="setting-unit-bg" value="#6495ED">
+                            <button type="button" class="color-btn" id="setting-unit-bg-btn" style="background-color: #6495ED;"></button>
+                        </div>
+                        <div class="form-row">
+                            <label for="setting-unit-text">Text Color:</label>
+                            <input type="color" id="setting-unit-text" value="#FFFFFF">
+                            <button type="button" class="color-btn" id="setting-unit-text-btn" style="background-color: #FFFFFF;"></button>
+                        </div>
+                        <div class="form-row">
+                            <label for="setting-unit-font">Font:</label>
+                            <button type="button" id="setting-unit-font-btn" class="font-btn">Segoe UI, 12pt</button>
+                        </div>
+                        <div class="form-row">
+                            <button type="button" id="setting-apply-to-all" class="btn btn-secondary">Apply to All Notes</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-backup">
+                    <div class="settings-group">
+                        <h3>Auto Backup</h3>
+                        <div class="form-row"><label><input type="checkbox" id="setting-auto-backup"> Enable auto backup</label></div>
+                        <div class="form-row">
+                            <label for="setting-backup-count">Keep backups:</label>
+                            <input type="number" id="setting-backup-count" min="5" max="50" value="10">
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>Restore</h3>
+                        <div class="form-row">
+                            <label for="setting-backup-list">Select backup:</label>
+                            <select id="setting-backup-list" size="5" style="width: 100%; height: 120px;"></select>
+                        </div>
+                        <div class="form-row">
+                            <button type="button" id="setting-restore-backup" class="btn btn-secondary">Restore Selected</button>
+                            <button type="button" id="setting-open-backup-folder" class="btn btn-secondary">Open Folder</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-advanced">
+                    <div class="settings-group">
+                        <h3>Behavior</h3>
+                        <div class="form-row">
+                            <label for="setting-undo-levels">Undo levels:</label>
+                            <input type="number" id="setting-undo-levels" min="5" max="50" value="20">
+                        </div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-double-click-edit"> Double-click to edit</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-single-click-copy"> Single-click to copy</label></div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>Performance</h3>
+                        <div class="form-row"><label><input type="checkbox" id="setting-enable-animations"> Enable animations</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button type="button" id="settings-reset-btn" class="btn">Reset to Defaults</button>
+                <button type="button" id="settings-save-btn" class="btn btn-primary">Save</button>
+                <button type="button" id="settings-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Dialog -->
+    <div id="about-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog dialog-about">
+            <div class="about-header">
+                <div class="about-app-name">Notes</div>
+                <div class="about-version" id="about-version">Version 1.0.0</div>
+            </div>
+            <div class="about-body">
+                <p>A modern note-taking application for Windows</p>
+                <p class="about-copyright">Copyright © 2024-2025</p>
+                <p>Built with Electron</p>
+            </div>
+            <div class="about-footer">
+                <button type="button" id="about-ok-btn" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Dialog -->
+    <div id="font-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog dialog-font">
+            <div class="dialog-title">Select Font</div>
+            <div class="dialog-content">
+                <div class="form-row">
+                    <label for="font-family">Font Family:</label>
+                    <select id="font-family">
+                        <option value="Segoe UI">Segoe UI</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Tahoma">Tahoma</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Consolas">Consolas</option>
+                        <option value="Comic Sans MS">Comic Sans MS</option>
+                        <option value="Impact">Impact</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="font-size">Size:</label>
+                    <input type="number" id="font-size" min="8" max="72" value="12">
+                </div>
+                <div class="form-row">
+                    <label>Style:</label>
+                    <label class="modifier-label"><input type="checkbox" id="font-bold"> Bold</label>
+                    <label class="modifier-label"><input type="checkbox" id="font-italic"> Italic</label>
+                </div>
+                <div class="form-row">
+                    <label>Preview:</label>
+                    <div id="font-preview" class="font-preview">Sample Text</div>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button type="button" id="font-ok-btn" class="btn btn-primary">OK</button>
+                <button type="button" id="font-cancel-btn" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menus -->
+    <div id="note-context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-item" data-action="edit">Edit</div>
+        <div class="context-menu-item" data-action="delete">Delete</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="copy-lower">Copy in Lowercase</div>
+        <div class="context-menu-item" data-action="copy-upper">Copy in Uppercase</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item context-menu-submenu" data-action="styles">
+            Styles
+            <div class="context-submenu" id="note-styles-submenu"></div>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="duplicate">Duplicate</div>
+        <div class="context-menu-item" data-action="copy-style">Copy Style</div>
+        <div class="context-menu-item" data-action="paste-style">Paste Style</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item context-menu-submenu" data-action="add-to-group">
+            Add to Group
+            <div class="context-submenu" id="note-groups-submenu"></div>
+        </div>
+        <div class="context-menu-item" data-action="remove-from-group">Remove from Group</div>
+    </div>
+
+    <div id="group-context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-item" data-action="add-button">Add Button Here</div>
+        <div class="context-menu-item" data-action="edit-group">Edit Group</div>
+        <div class="context-menu-item" data-action="delete-group">Delete Group</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item context-menu-submenu" data-action="align">
+            Align Buttons
+            <div class="context-submenu">
+                <div class="context-menu-item" data-action="align-left">Left</div>
+                <div class="context-menu-item" data-action="align-center">Center</div>
+                <div class="context-menu-item" data-action="align-right">Right</div>
+                <div class="context-menu-separator"></div>
+                <div class="context-menu-item" data-action="align-top">Top</div>
+                <div class="context-menu-item" data-action="align-middle">Middle</div>
+                <div class="context-menu-item" data-action="align-bottom">Bottom</div>
+            </div>
+        </div>
+        <div class="context-menu-item" data-action="auto-resize">Auto Resize</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item context-menu-submenu" data-action="group-styles">
+            Styles
+            <div class="context-submenu" id="group-styles-submenu"></div>
+        </div>
+    </div>
+
+    <!-- Selection Rectangle (for multi-select) -->
+    <div id="selection-rect" style="display: none;"></div>
+
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/button-styles.js"></script>
+    <script src="scripts/group-styles.js"></script>
+    <script src="scripts/undo-redo.js"></script>
+    <script src="scripts/dialogs.js"></script>
+    <script src="scripts/renderer.js"></script>
+</body>
+</html>

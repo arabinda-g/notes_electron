@@ -1,0 +1,453 @@
+/* Group Box Styles */
+
+/* Base Group Box */
+.group-box {
+    transition: box-shadow 0.2s ease;
+}
+
+.group-box:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 1. Gradient Glass */
+.group-box.style-gradient-glass {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 250, 0.85) 100%);
+    border: 2px solid rgba(100, 149, 237, 0.5);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    backdrop-filter: blur(4px);
+}
+
+/* 2. Neon Glow */
+.group-box.style-neon-glow {
+    background: rgba(10, 10, 20, 0.95);
+    border: 2px solid #00FF7F;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 255, 127, 0.3), inset 0 0 30px rgba(0, 255, 127, 0.05);
+}
+
+.group-box.style-neon-glow .group-box-title {
+    color: #00FF7F;
+    text-shadow: 0 0 10px #00FF7F;
+}
+
+/* 3. Embossed */
+.group-box.style-embossed {
+    background: linear-gradient(180deg, #F0F0F0 0%, #E8E8E8 100%);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 
+        8px 8px 16px rgba(0, 0, 0, 0.15),
+        -8px -8px 16px rgba(255, 255, 255, 0.9),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.5),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 4. Retro */
+.group-box.style-retro {
+    background: #C0C0C0;
+    border: none;
+    border-radius: 0;
+    box-shadow: 
+        inset -2px -2px 0 #808080,
+        inset 2px 2px 0 #FFFFFF,
+        4px 4px 0 #404040;
+}
+
+.group-box.style-retro .group-box-title {
+    background: #000080;
+    color: #FFFFFF;
+    padding: 2px 8px;
+}
+
+/* 5. Card */
+.group-box.style-card {
+    background: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.group-box.style-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+/* 6. Minimal */
+.group-box.style-minimal {
+    background: transparent;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+/* 7. Dashed */
+.group-box.style-dashed {
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px dashed #999;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+/* 8. Double Border */
+.group-box.style-double-border {
+    background: #FAFAFA;
+    border: 4px double #3498DB;
+    border-radius: 8px;
+}
+
+/* 9. Shadow Panel */
+.group-box.style-shadow-panel {
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.05),
+        0 4px 8px rgba(0, 0, 0, 0.05),
+        0 8px 16px rgba(0, 0, 0, 0.05),
+        0 16px 32px rgba(0, 0, 0, 0.05);
+}
+
+/* 10. Rounded Neon */
+.group-box.style-rounded-neon {
+    background: #1A1A2E;
+    border: 3px solid;
+    border-image: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4) 1;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+}
+
+/* 11. Holographic */
+.group-box.style-holographic {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(255, 0, 255, 0.1) 50%, rgba(255, 255, 0, 0.1) 100%);
+    border: 2px solid;
+    border-image: linear-gradient(45deg, cyan, magenta, yellow, cyan) 1;
+    border-radius: 8px;
+    animation: holographic-shift 3s ease infinite;
+}
+
+@keyframes holographic-shift {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(30deg); }
+}
+
+/* 12. Vintage Paper */
+.group-box.style-vintage-paper {
+    background: linear-gradient(180deg, #FDF5E6 0%, #F5DEB3 100%);
+    border: 1px solid #D4A574;
+    border-radius: 2px;
+    box-shadow: 
+        inset 0 0 50px rgba(139, 90, 43, 0.1),
+        3px 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.group-box.style-vintage-paper .group-box-title {
+    font-family: Georgia, serif;
+    color: #5D4037;
+}
+
+/* 13. Liquid Metal */
+.group-box.style-liquid-metal {
+    background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 25%, #D0D0D0 50%, #909090 75%, #B0B0B0 100%);
+    border: 2px solid #707070;
+    border-radius: 10px;
+    box-shadow: 
+        inset 0 2px 10px rgba(255, 255, 255, 0.5),
+        0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 14. Cosmic */
+.group-box.style-cosmic {
+    background: linear-gradient(180deg, #0D0D2B 0%, #1A1A4E 50%, #2E2E7A 100%);
+    border: 1px solid #4A4A8A;
+    border-radius: 12px;
+    box-shadow: 
+        0 0 30px rgba(100, 100, 255, 0.2),
+        inset 0 0 50px rgba(100, 100, 255, 0.1);
+}
+
+.group-box.style-cosmic .group-box-title {
+    color: #E0E0FF;
+}
+
+/* 15. Rainbow Spectrum */
+.group-box.style-rainbow-spectrum {
+    background: #FFFFFF;
+    border: 3px solid;
+    border-image: linear-gradient(90deg, 
+        #FF0000, #FF7F00, #FFFF00, #00FF00, 
+        #0000FF, #4B0082, #9400D3, #FF0000) 1;
+    border-radius: 8px;
+}
+
+/* Animated Styles */
+
+/* 16. Aurora Borealis */
+.group-box.style-aurora {
+    background: linear-gradient(180deg, #0A0A20 0%, #1A1A40 100%);
+    border: 2px solid rgba(0, 255, 127, 0.5);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.group-box.style-aurora::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 300%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(0, 255, 127, 0.1), 
+        rgba(0, 200, 255, 0.1), 
+        rgba(128, 0, 255, 0.1), 
+        transparent);
+    animation: aurora-wave 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes aurora-wave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(33.33%); }
+}
+
+/* 17. Cyber Circuit */
+.group-box.style-cyber-circuit {
+    background: #0D0D0D;
+    border: 2px solid #00FF00;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.group-box.style-cyber-circuit::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 1px dashed rgba(0, 255, 0, 0.3);
+    pointer-events: none;
+    animation: circuit-pulse 2s ease-in-out infinite;
+}
+
+@keyframes circuit-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+/* 18. Fire Lava */
+.group-box.style-fire-lava {
+    background: linear-gradient(180deg, #1A0A00 0%, #3D1A00 100%);
+    border: 3px solid;
+    border-image: linear-gradient(180deg, #FF6600, #FF3300, #FF0000) 1;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(255, 50, 0, 0.4);
+    animation: fire-glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fire-glow {
+    0% { box-shadow: 0 0 20px rgba(255, 50, 0, 0.4); }
+    100% { box-shadow: 0 0 30px rgba(255, 100, 0, 0.6); }
+}
+
+/* 19. Matrix Rain */
+.group-box.style-matrix {
+    background: #000000;
+    border: 2px solid #00FF00;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.group-box.style-matrix .group-box-title {
+    color: #00FF00;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px #00FF00;
+}
+
+/* 20. Crystal Ice */
+.group-box.style-crystal-ice {
+    background: linear-gradient(135deg, rgba(200, 230, 255, 0.9) 0%, rgba(150, 200, 255, 0.8) 100%);
+    border: 2px solid rgba(100, 180, 255, 0.6);
+    border-radius: 12px;
+    box-shadow: 
+        0 0 20px rgba(100, 180, 255, 0.3),
+        inset 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+/* 21. Plasma Energy */
+.group-box.style-plasma {
+    background: linear-gradient(135deg, #1A0A2E 0%, #2D1B4E 100%);
+    border: 2px solid #9B59B6;
+    border-radius: 10px;
+    box-shadow: 0 0 25px rgba(155, 89, 182, 0.4);
+    animation: plasma-pulse 2s ease-in-out infinite;
+}
+
+@keyframes plasma-pulse {
+    0%, 100% { box-shadow: 0 0 25px rgba(155, 89, 182, 0.4); }
+    50% { box-shadow: 0 0 35px rgba(155, 89, 182, 0.6), 0 0 50px rgba(155, 89, 182, 0.3); }
+}
+
+/* 22. Ocean Wave */
+.group-box.style-ocean-wave {
+    background: linear-gradient(180deg, #0077B6 0%, #00B4D8 50%, #90E0EF 100%);
+    border: 2px solid #023E8A;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.group-box.style-ocean-wave::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.2) 100%);
+    animation: wave-motion 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes wave-motion {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* 23. Electric Storm */
+.group-box.style-electric-storm {
+    background: linear-gradient(180deg, #1A1A2E 0%, #16213E 100%);
+    border: 2px solid #00D4FF;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    animation: electric-flicker 0.5s ease-in-out infinite;
+}
+
+@keyframes electric-flicker {
+    0%, 90%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+    95% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.8), 0 0 50px rgba(0, 212, 255, 0.4); }
+}
+
+/* 24. Starfield Warp */
+.group-box.style-starfield {
+    background: radial-gradient(ellipse at center, #0D0D2B 0%, #000000 100%);
+    border: 1px solid #4A4A8A;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* 25. Heartbeat Pulse */
+.group-box.style-heartbeat {
+    background: linear-gradient(135deg, #2D0A0A 0%, #4A1515 100%);
+    border: 2px solid #E74C3C;
+    border-radius: 10px;
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
+    14% { transform: scale(1.02); box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.02); box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
+    70% { transform: scale(1); }
+}
+
+/* 26. Snowfall */
+.group-box.style-snowfall {
+    background: linear-gradient(180deg, #E8F4F8 0%, #D0E8F0 100%);
+    border: 2px solid #A8D8EA;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 100, 150, 0.1);
+}
+
+/* 27. Cloud Drift */
+.group-box.style-cloud-drift {
+    background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 100%);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 
+        inset 0 0 30px rgba(255, 255, 255, 0.5),
+        0 10px 30px rgba(0, 100, 150, 0.2);
+}
+
+/* 28. Sparkle Shine */
+.group-box.style-sparkle {
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFE4B5 100%);
+    border: 2px solid #DAA520;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(218, 165, 32, 0.3);
+    animation: sparkle-glow 2s ease-in-out infinite;
+}
+
+@keyframes sparkle-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(218, 165, 32, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(218, 165, 32, 0.5), 0 0 40px rgba(255, 215, 0, 0.3); }
+}
+
+/* 29. Ripple Water */
+.group-box.style-ripple-water {
+    background: linear-gradient(180deg, #E0F7FA 0%, #80DEEA 100%);
+    border: 2px solid #00ACC1;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* 30. Bubbles Float */
+.group-box.style-bubbles {
+    background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%);
+    border: 2px solid #66BB6A;
+    border-radius: 16px;
+}
+
+/* 31. Confetti Party */
+.group-box.style-confetti {
+    background: #FFFFFF;
+    border: 3px solid #FF69B4;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
+}
+
+/* 32. Sunburst Rays */
+.group-box.style-sunburst {
+    background: linear-gradient(180deg, #FFF9C4 0%, #FFECB3 100%);
+    border: 2px solid #FFA000;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(255, 160, 0, 0.3);
+}
+
+/* 33. Cherry Blossom */
+.group-box.style-cherry-blossom {
+    background: linear-gradient(135deg, #FFF0F5 0%, #FFB6C1 100%);
+    border: 2px solid #FF69B4;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.2);
+}
+
+/* 34. Floating Hearts */
+.group-box.style-floating-hearts {
+    background: linear-gradient(180deg, #FCE4EC 0%, #F8BBD9 100%);
+    border: 2px solid #E91E63;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(233, 30, 99, 0.2);
+}
+
+/* Dark theme adjustments for groups */
+[data-theme="dark"] .group-box.style-card,
+[data-theme="dark"] .group-box.style-minimal,
+[data-theme="dark"] .group-box.style-shadow-panel {
+    background: #2D2D2D;
+    border-color: #555;
+}
+
+[data-theme="dark"] .group-box.style-card .group-box-title,
+[data-theme="dark"] .group-box.style-minimal .group-box-title,
+[data-theme="dark"] .group-box.style-shadow-panel .group-box-title {
+    color: #FFF;
+}
