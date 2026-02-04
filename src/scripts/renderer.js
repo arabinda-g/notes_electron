@@ -1352,7 +1352,183 @@ const App = {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    App.init();
+    App.init().then(() => {
+        // Auto-run tests in dev mode (when DevTools is present)
+        setTimeout(() => {
+            if (window.__devtools_open || window.runTests) {
+                console.log('Auto-running tests...');
+                App.runTests();
+            }
+        }, 1000);
+    });
 });
+
+// Test suite for development
+App.runTests = async function() {
+    console.log('=== Notes App Automated Tests ===\n');
+    let passed = 0, failed = 0;
+
+    function test(name, fn) {
+        try {
+            fn();
+            console.log(`✓ ${name}`);
+            passed++;
+        } catch (e) {
+            console.error(`✗ ${name}: ${e.message}`);
+            failed++;
+        }
+    }
+
+    // Core objects
+    test('App object exists', () => { if (!App) throw new Error(); });
+    test('Utils object exists', () => { if (!Utils) throw new Error(); });
+    test('Dialogs object exists', () => { if (!Dialogs) throw new Error(); });
+    test('ButtonStyles object exists', () => { if (!ButtonStyles) throw new Error(); });
+    test('GroupStyles object exists', () => { if (!GroupStyles) throw new Error(); });
+
+    // DOM elements
+    test('Panel container exists', () => { if (!document.getElementById('panel-container')) throw new Error(); });
+    test('Status bar exists', () => { if (!document.getElementById('status-bar')) throw new Error(); });
+    test('Add Note dialog exists', () => { if (!document.getElementById('add-note-dialog')) throw new Error(); });
+    test('Edit Note dialog exists', () => { if (!document.getElementById('edit-note-dialog')) throw new Error(); });
+    test('Group dialog exists', () => { if (!document.getElementById('group-dialog')) throw new Error(); });
+    test('Settings dialog exists', () => { if (!document.getElementById('settings-dialog')) throw new Error(); });
+    test('About dialog exists', () => { if (!document.getElementById('about-dialog')) throw new Error(); });
+    test('Context menus exist', () => { 
+        if (!document.getElementById('note-context-menu')) throw new Error();
+        if (!document.getElementById('group-context-menu')) throw new Error();
+    });
+
+    // Utils functions
+    test('Utils.generateId works', () => {
+        const id = Utils.generateId();
+        if (!id || !id.startsWith('id_')) throw new Error();
+    });
+    test('Utils.getContrastColor works', () => {
+        if (Utils.getContrastColor('#FFFFFF') !== '#000000') throw new Error();
+        if (Utils.getContrastColor('#000000') !== '#FFFFFF') throw new Error();
+    });
+    test('Utils.deepClone works', () => {
+        const obj = {a: {b: 1}};
+        const clone = Utils.deepClone(obj);
+        clone.a.b = 2;
+        if (obj.a.b !== 1) throw new Error();
+    });
+
+    // Styles
+    test('ButtonStyles has 20+ styles', () => {
+        if (ButtonStyles.getAllStyleNames().length < 20) throw new Error();
+    });
+    test('GroupStyles has 30+ styles', () => {
+        if (GroupStyles.getAllStyleNames().length < 30) throw new Error();
+    });
+
+    // Data structure
+    test('App.data has units and groups', () => {
+        if (!App.data.units || !App.data.groups) throw new Error();
+    });
+    test('Welcome note exists', () => {
+        const notes = Object.values(App.data.units);
+        if (!notes.some(n => n.title && n.title.includes('Welcome'))) throw new Error();
+    });
+
+    // Note CRUD
+    const testNoteId = Utils.generateId();
+    test('Add note works', () => {
+        const count = Object.keys(App.data.units).length;
+        App.addNote({
+            id: testNoteId, title: 'Test Note', content: 'Test', contentType: 'Text',
+            backgroundColor: '#FF0000', textColor: '#FFF', fontFamily: 'Arial', fontSize: 12,
+            x: 100, y: 100, createdDate: new Date().toISOString(), modifiedDate: new Date().toISOString()
+        });
+        if (Object.keys(App.data.units).length !== count + 1) throw new Error();
+        if (!document.getElementById(`note-${testNoteId}`)) throw new Error();
+    });
+    test('Update note works', () => {
+        App.updateNote(testNoteId, { title: 'Updated Test' });
+        if (App.data.units[testNoteId].title !== 'Updated Test') throw new Error();
+    });
+    test('Duplicate note works', () => {
+        const count = Object.keys(App.data.units).length;
+        App.duplicateNote(testNoteId);
+        if (Object.keys(App.data.units).length !== count + 1) throw new Error();
+    });
+
+    // Group CRUD
+    const testGroupId = Utils.generateId();
+    test('Add group works', () => {
+        const count = Object.keys(App.data.groups).length;
+        App.addGroup({
+            id: testGroupId, title: 'Test Group', x: 200, y: 200, width: 300, height: 200,
+            borderColor: '#3498DB', backgroundColor: '#ECF0F1', textColor: '#2C3E50'
+        });
+        if (Object.keys(App.data.groups).length !== count + 1) throw new Error();
+        if (!document.getElementById(`group-${testGroupId}`)) throw new Error();
+    });
+    test('Update group works', () => {
+        App.updateGroup(testGroupId, { title: 'Updated Group' });
+        if (App.data.groups[testGroupId].title !== 'Updated Group') throw new Error();
+    });
+
+    // Selection
+    test('Selection works', () => {
+        App.clearSelection();
+        if (App.selectedNotes.size !== 0) throw new Error();
+        App.selectedNotes.add(testNoteId);
+        if (App.selectedNotes.size !== 1) throw new Error();
+    });
+
+    // Copy style
+    test('Copy style works', () => {
+        App.copyStyle(testNoteId);
+        if (!App.copiedStyle || !App.copiedStyle.backgroundColor) throw new Error();
+    });
+
+    // Dialogs
+    test('Show/hide dialog works', () => {
+        Dialogs.showDialog('about-dialog');
+        if (document.getElementById('about-dialog').style.display !== 'flex') throw new Error();
+        Dialogs.closeDialog('about-dialog');
+        if (document.getElementById('about-dialog').style.display !== 'none') throw new Error();
+    });
+
+    // Undo
+    test('Undo manager exists', () => {
+        if (!App.undoManager) throw new Error();
+    });
+
+    // Config
+    test('Config has required sections', () => {
+        const cfg = App.getConfig();
+        if (!cfg.general || !cfg.hotkey || !cfg.window || !cfg.unitStyle) throw new Error();
+    });
+
+    // Theme
+    test('Theme is set', () => {
+        const theme = document.documentElement.getAttribute('data-theme');
+        if (!['light', 'dark'].includes(theme)) throw new Error();
+    });
+
+    // Status
+    test('Status message works', () => {
+        App.showStatus('Test message');
+        if (document.getElementById('status-label').textContent !== 'Test message') throw new Error();
+    });
+
+    // Cleanup
+    delete App.data.units[testNoteId];
+    document.getElementById(`note-${testNoteId}`)?.remove();
+    // Clean up duplicated note
+    const dupNote = Object.values(App.data.units).find(n => n.title === 'Updated Test' && n.id !== testNoteId);
+    if (dupNote) {
+        delete App.data.units[dupNote.id];
+        document.getElementById(`note-${dupNote.id}`)?.remove();
+    }
+    delete App.data.groups[testGroupId];
+    document.getElementById(`group-${testGroupId}`)?.remove();
+
+    console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
+    return { passed, failed };
+};
 
 window.App = App;

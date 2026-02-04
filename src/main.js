@@ -151,6 +151,10 @@ function createWindow() {
         if (!config.general.startMinimized) {
             mainWindow.show();
         }
+        // Open DevTools for debugging (remove in production)
+        if (process.argv.includes('--dev')) {
+            mainWindow.webContents.openDevTools();
+        }
     });
 
     mainWindow.on('close', (event) => {

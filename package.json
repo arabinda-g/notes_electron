@@ -5,12 +5,19 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev"
+    "dev": "electron . --dev",
+    "debug": "electron . --dev --remote-debugging-port=9222 --remote-allow-origins=*",
+    "test": "node run-tests.js"
   },
-  "keywords": ["notes", "electron", "desktop"],
+  "keywords": [
+    "notes",
+    "electron",
+    "desktop"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "ws": "^8.19.0"
   }
 }
