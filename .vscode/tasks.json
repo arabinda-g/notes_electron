@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build: Windows (All)",
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "detail": "Build installer and portable versions for Windows"
+    },
+    {
+      "label": "Build: Portable Only",
+      "type": "npm",
+      "script": "build:portable",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Build portable executable only"
+    },
+    {
+      "label": "Build: Installer Only",
+      "type": "npm",
+      "script": "build:installer",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Build NSIS installer only"
+    },
+    {
+      "label": "Run Tests",
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "problemMatcher": [],
+      "detail": "Run CDP tests (requires app running with npm run debug)"
+    }
+  ]
+}
