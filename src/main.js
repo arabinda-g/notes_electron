@@ -154,8 +154,8 @@ function createWindow() {
     const windowConfig = config.window;
 
     const windowOptions = {
-        width: windowConfig.width || 800,
-        height: windowConfig.height || 600,
+        width: windowConfig.rememberSize ? (windowConfig.width || 800) : 800,
+        height: windowConfig.rememberSize ? (windowConfig.height || 600) : 600,
         minWidth: 400,
         minHeight: 300,
         webPreferences: {
@@ -194,7 +194,7 @@ function createWindow() {
         }
     });
 
-    mainWindow.on('close', (event) => {
+    mainWindow.on('close', async (event) => {
         const currentConfig = store.get('config');
         if (!isQuitting && currentConfig.general.closeToTray && tray) {
             event.preventDefault();
@@ -202,15 +202,34 @@ function createWindow() {
             return;
         }
         
-        // Save window state
+        // Confirm before exit if enabled (and not already quitting via menu/tray)
+        if (!isQuitting && currentConfig.general.confirmExit) {
+            event.preventDefault();
+            const result = await dialog.showMessageBox(mainWindow, {
+                type: 'question',
+                buttons: ['Exit', 'Cancel'],
+                defaultId: 1,
+                title: 'Confirm Exit',
+                message: 'Are you sure you want to exit?'
+            });
+            if (result.response === 0) {
+                isQuitting = true;
+                mainWindow.close();
+            }
+            return;
+        }
+        
+        // Save window state (batch update to avoid multiple disk writes)
+        const windowState = store.get('config.window') || {};
         if (!mainWindow.isMaximized()) {
             const bounds = mainWindow.getBounds();
-            store.set('config.window.x', bounds.x);
-            store.set('config.window.y', bounds.y);
-            store.set('config.window.width', bounds.width);
-            store.set('config.window.height', bounds.height);
+            windowState.x = bounds.x;
+            windowState.y = bounds.y;
+            windowState.width = bounds.width;
+            windowState.height = bounds.height;
         }
-        store.set('config.window.maximized', mainWindow.isMaximized());
+        windowState.maximized = mainWindow.isMaximized();
+        store.set('config.window', windowState);
     });
 
     mainWindow.on('minimize', () => {
@@ -401,9 +420,17 @@ ipcMain.handle('get-store-data', () => {
     };
 });
 
+let lastBackupTime = 0;
+const BACKUP_INTERVAL_MS = 5 * 60 * 1000; // At most one backup every 5 minutes
+
 ipcMain.handle('save-data', (event, data) => {
     store.set('jsonData', data);
-    createBackup(data);
+    // Throttle backups to avoid creating one every auto-save cycle
+    const now = Date.now();
+    if (now - lastBackupTime >= BACKUP_INTERVAL_MS) {
+        createBackup(data);
+        lastBackupTime = now;
+    }
     return true;
 });
 
@@ -487,7 +514,11 @@ ipcMain.handle('get-backup-list', () => {
 
 ipcMain.handle('restore-backup', async (event, filename) => {
     try {
-        const filePath = path.join(backupPath, filename);
+        // Sanitize filename to prevent path traversal
+        const sanitized = path.basename(filename);
+        const filePath = path.join(backupPath, sanitized);
+        // Verify the resolved path is still within the backup directory
+        if (!filePath.startsWith(backupPath)) return null;
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (e) {

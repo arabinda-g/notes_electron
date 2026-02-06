@@ -16,6 +16,7 @@ const App = {
     
     // Drag state
     isDragging: false,
+    hasDragged: false, // True only if mouse actually moved during drag
     dragStartX: 0,
     dragStartY: 0,
     dragOffsets: {},
@@ -60,6 +61,9 @@ const App = {
         
         // Apply theme
         await this.applyTheme();
+        
+        // Apply animations setting
+        this.applyAnimationsSetting();
         
         // Render notes and groups
         this.render();
@@ -112,23 +116,23 @@ const App = {
         const migratedUnits = {};
         Object.entries(units).forEach(([key, unit]) => {
             migratedUnits[key] = {
-                id: unit.id || unit.Id || key,
-                title: unit.title || unit.Title || '',
-                content: unit.content || unit.Content || unit.ContentData || '',
-                contentType: unit.contentType || unit.ContentType || 'Text',
-                contentData: unit.contentData || unit.ContentData || '',
-                backgroundColor: this.convertColor(unit.backgroundColor || unit.BackgroundColor),
-                textColor: this.convertColor(unit.textColor || unit.TextColor),
+                id: unit.id ?? unit.Id ?? key,
+                title: unit.title ?? unit.Title ?? '',
+                content: unit.content ?? unit.Content ?? unit.ContentData ?? '',
+                contentType: unit.contentType ?? unit.ContentType ?? 'Text',
+                contentData: unit.contentData ?? unit.ContentData ?? '',
+                backgroundColor: this.convertColor(unit.backgroundColor ?? unit.BackgroundColor),
+                textColor: this.convertColor(unit.textColor ?? unit.TextColor),
                 fontFamily: unit.fontFamily || (unit.Font ? unit.Font.split(',')[0] : 'Segoe UI'),
-                fontSize: unit.fontSize || 12,
-                fontBold: unit.fontBold || false,
-                fontItalic: unit.fontItalic || false,
-                x: unit.x || unit.X || 50,
-                y: unit.y || unit.Y || 50,
-                groupId: unit.groupId || unit.GroupId || null,
-                buttonType: unit.buttonType || unit.ButtonType || null,
-                createdDate: unit.createdDate || unit.CreatedDate || new Date().toISOString(),
-                modifiedDate: unit.modifiedDate || unit.ModifiedDate || new Date().toISOString()
+                fontSize: unit.fontSize ?? 12,
+                fontBold: unit.fontBold ?? false,
+                fontItalic: unit.fontItalic ?? false,
+                x: unit.x ?? unit.X ?? 50,
+                y: unit.y ?? unit.Y ?? 50,
+                groupId: unit.groupId ?? unit.GroupId ?? null,
+                buttonType: unit.buttonType ?? unit.ButtonType ?? null,
+                createdDate: unit.createdDate ?? unit.CreatedDate ?? new Date().toISOString(),
+                modifiedDate: unit.modifiedDate ?? unit.ModifiedDate ?? new Date().toISOString()
             };
         });
         
@@ -136,16 +140,16 @@ const App = {
         const migratedGroups = {};
         Object.entries(groups).forEach(([key, group]) => {
             migratedGroups[key] = {
-                id: group.id || group.Id || key,
-                title: group.title || group.Title || '',
-                x: group.x || group.X || 50,
-                y: group.y || group.Y || 50,
-                width: group.width || group.Width || 300,
-                height: group.height || group.Height || 200,
-                borderColor: this.convertColor(group.borderColor || group.BorderColor),
-                backgroundColor: this.convertColor(group.backgroundColor || group.BackgroundColor),
-                textColor: this.convertColor(group.textColor || group.TextColor),
-                groupBoxType: group.groupBoxType || group.GroupBoxType || null
+                id: group.id ?? group.Id ?? key,
+                title: group.title ?? group.Title ?? '',
+                x: group.x ?? group.X ?? 50,
+                y: group.y ?? group.Y ?? 50,
+                width: group.width ?? group.Width ?? 300,
+                height: group.height ?? group.Height ?? 200,
+                borderColor: this.convertColor(group.borderColor ?? group.BorderColor),
+                backgroundColor: this.convertColor(group.backgroundColor ?? group.BackgroundColor),
+                textColor: this.convertColor(group.textColor ?? group.TextColor),
+                groupBoxType: group.groupBoxType ?? group.GroupBoxType ?? null
             };
         });
         
@@ -163,8 +167,9 @@ const App = {
     setupEventListeners() {
         // Panel mouse events for selection rectangle
         this.panelContainer.addEventListener('mousedown', (e) => this.onPanelMouseDown(e));
-        this.panelContainer.addEventListener('mousemove', (e) => this.onPanelMouseMove(e));
-        this.panelContainer.addEventListener('mouseup', (e) => this.onPanelMouseUp(e));
+        // Use document for mousemove/mouseup so dragging works even when mouse leaves panel
+        document.addEventListener('mousemove', (e) => this.onPanelMouseMove(e));
+        document.addEventListener('mouseup', (e) => this.onPanelMouseUp(e));
         
         // Keyboard events
         document.addEventListener('keydown', (e) => this.onKeyDown(e));
@@ -238,6 +243,7 @@ const App = {
         }
         
         if (this.isDragging && this.isMovable) {
+            this.hasDragged = true;
             const rect = this.panelContainer.getBoundingClientRect();
             const currentX = e.clientX - rect.left + this.panelContainer.scrollLeft;
             const currentY = e.clientY - rect.top + this.panelContainer.scrollTop;
@@ -275,21 +281,25 @@ const App = {
         
         if (this.isDragging) {
             this.isDragging = false;
-            
-            // Save state for undo BEFORE updating data (data still has pre-move positions)
-            this.undoManager.saveState(this.data, 'Move notes');
-            
-            // Update data from DOM positions
-            this.selectedNotes.forEach(noteId => {
-                const element = document.getElementById(`note-${noteId}`);
-                if (element) {
-                    this.data.units[noteId].x = parseInt(element.style.left);
-                    this.data.units[noteId].y = parseInt(element.style.top);
-                }
-            });
-            
-            this.saveData();
             document.querySelectorAll('.note-button.dragging').forEach(el => el.classList.remove('dragging'));
+            
+            // Only save undo/data if mouse actually moved (avoid wasting undo levels on clicks)
+            if (this.hasDragged) {
+                // Save state for undo BEFORE updating data (data still has pre-move positions)
+                this.undoManager.saveState(this.data, 'Move notes');
+                
+                // Update data from DOM positions
+                this.selectedNotes.forEach(noteId => {
+                    const element = document.getElementById(`note-${noteId}`);
+                    if (element) {
+                        this.data.units[noteId].x = parseInt(element.style.left);
+                        this.data.units[noteId].y = parseInt(element.style.top);
+                    }
+                });
+                
+                this.saveData();
+            }
+            this.hasDragged = false;
         }
         
         if (this.isResizingGroup) {
@@ -509,6 +519,7 @@ const App = {
         // Start drag
         if (this.isMovable && this.selectedNotes.size > 0) {
             this.isDragging = true;
+            this.hasDragged = false;
             
             const rect = this.panelContainer.getBoundingClientRect();
             const mouseX = e.clientX - rect.left + this.panelContainer.scrollLeft;
@@ -994,6 +1005,7 @@ const App = {
         this.setupAutoSave();
         this.undoManager.setMaxLevels(config.general.undoLevels);
         this.applyTheme();
+        this.applyAnimationsSetting();
     },
 
     // Reset config
@@ -1087,7 +1099,16 @@ const App = {
 
     // Set theme
     setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-theme', theme.toLowerCase());
+    },
+
+    // Apply animations setting
+    applyAnimationsSetting() {
+        if (this.config.general.enableAnimations) {
+            document.documentElement.classList.remove('no-animations');
+        } else {
+            document.documentElement.classList.add('no-animations');
+        }
     },
 
     // Show status message

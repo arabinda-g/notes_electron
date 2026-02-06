@@ -378,6 +378,17 @@ input[type="checkbox"] {
     animation: slideIn 0.2s ease;
 }
 
+/* Disable animations when setting is off */
+.no-animations,
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;

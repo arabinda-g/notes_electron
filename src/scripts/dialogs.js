@@ -23,12 +23,13 @@ const Dialogs = {
             });
         });
 
-        // Close dialogs on Escape
+        // Close dialogs on Escape (close the last/topmost visible dialog)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                const visibleDialog = document.querySelector('.dialog-overlay:not([style*="display: none"])');
-                if (visibleDialog) {
-                    this.closeDialog(visibleDialog.id);
+                const visibleDialogs = document.querySelectorAll('.dialog-overlay:not([style*="display: none"])');
+                if (visibleDialogs.length > 0) {
+                    // Close the last one in DOM order (topmost visually)
+                    this.closeDialog(visibleDialogs[visibleDialogs.length - 1].id);
                 }
             }
         });
@@ -646,7 +647,7 @@ const Dialogs = {
         document.getElementById('add-note-dialog').dataset.y = y;
         
         // Clear image/object data
-        document.getElementById('add-image-preview').innerHTML = '';
+        document.getElementById('add-image-preview').textContent = '';
         document.getElementById('add-image-preview').dataset.imageData = '';
         document.getElementById('add-object-summary').textContent = '';
         document.getElementById('add-object-summary').dataset.objectData = '';
@@ -716,11 +717,11 @@ const Dialogs = {
         document.getElementById('group-dialog-title').textContent = isEdit ? 'Edit Group' : 'Add Group';
         
         if (isEdit) {
-            document.getElementById('group-title').value = group.title || '';
-            document.getElementById('group-x').value = group.x || 50;
-            document.getElementById('group-y').value = group.y || 50;
-            document.getElementById('group-width').value = group.width || 300;
-            document.getElementById('group-height').value = group.height || 200;
+            document.getElementById('group-title').value = group.title ?? '';
+            document.getElementById('group-x').value = group.x ?? 50;
+            document.getElementById('group-y').value = group.y ?? 50;
+            document.getElementById('group-width').value = group.width ?? 300;
+            document.getElementById('group-height').value = group.height ?? 200;
             
             const borderColor = group.borderColor || '#3498DB';
             const bgColor = group.backgroundColor || '#ECF0F1';
@@ -900,8 +901,8 @@ const Dialogs = {
             fontSize: parsedFont.size,
             fontBold: parsedFont.bold,
             fontItalic: parsedFont.italic,
-            x: parseInt(dialog.dataset.x) || 50,
-            y: parseInt(dialog.dataset.y) || 50,
+            x: Number.isFinite(parseInt(dialog.dataset.x)) ? parseInt(dialog.dataset.x) : 50,
+            y: Number.isFinite(parseInt(dialog.dataset.y)) ? parseInt(dialog.dataset.y) : 50,
             groupId: document.getElementById('add-group').value || null,
             createdDate: new Date().toISOString(),
             modifiedDate: new Date().toISOString()
@@ -977,10 +978,10 @@ const Dialogs = {
         const group = {
             id: isEdit ? groupId : Utils.generateId(),
             title: title,
-            x: parseInt(document.getElementById('group-x').value) || 50,
-            y: parseInt(document.getElementById('group-y').value) || 50,
-            width: Math.max(100, parseInt(document.getElementById('group-width').value) || 300),
-            height: Math.max(80, parseInt(document.getElementById('group-height').value) || 200),
+            x: Number.isFinite(parseInt(document.getElementById('group-x').value)) ? parseInt(document.getElementById('group-x').value) : 50,
+            y: Number.isFinite(parseInt(document.getElementById('group-y').value)) ? parseInt(document.getElementById('group-y').value) : 50,
+            width: Math.max(100, Number.isFinite(parseInt(document.getElementById('group-width').value)) ? parseInt(document.getElementById('group-width').value) : 300),
+            height: Math.max(80, Number.isFinite(parseInt(document.getElementById('group-height').value)) ? parseInt(document.getElementById('group-height').value) : 200),
             borderColor: document.getElementById('group-border-color').value,
             backgroundColor: document.getElementById('group-bg-color').value,
             textColor: document.getElementById('group-text-color').value
