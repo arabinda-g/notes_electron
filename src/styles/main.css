@@ -181,9 +181,20 @@ html, body {
     overflow: hidden;
 }
 
+.group-box-title,
+.group-box-content {
+    cursor: move;
+}
+
 .group-box.selected {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
+}
+
+.group-box.dragging {
+    opacity: 0.85;
+    cursor: move;
+    z-index: 1000;
 }
 
 .group-resize-handle {

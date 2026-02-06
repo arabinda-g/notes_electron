@@ -26,6 +26,13 @@ const App = {
     selectionStartX: 0,
     selectionStartY: 0,
     
+    // Group drag
+    isDraggingGroup: false,
+    hasDraggedGroup: false,
+    draggingGroupId: null,
+    groupDragOffsetX: 0,
+    groupDragOffsetY: 0,
+    
     // Group resize
     isResizingGroup: false,
     resizingGroupId: null,
@@ -292,6 +299,42 @@ const App = {
                 this.resizeGroupElement(this.resizingGroupId, newWidth, newHeight);
             }
         }
+        
+        if (this.isDraggingGroup && this.isMovable) {
+            // Save undo state on first actual movement
+            if (!this.hasDraggedGroup) {
+                this.undoManager.saveState(this.data, 'Move group');
+                this.hasDraggedGroup = true;
+            }
+            
+            const rect = this.panelContainer.getBoundingClientRect();
+            const currentX = e.clientX - rect.left + this.panelContainer.scrollLeft;
+            const currentY = e.clientY - rect.top + this.panelContainer.scrollTop;
+            
+            const group = this.data.groups[this.draggingGroupId];
+            if (group) {
+                const newX = Math.max(0, currentX - this.groupDragOffsetX);
+                const newY = Math.max(0, currentY - this.groupDragOffsetY);
+                
+                // Calculate movement delta to move notes along with the group
+                const deltaX = newX - group.x;
+                const deltaY = newY - group.y;
+                
+                // Move all notes inside this group (update data + DOM)
+                Object.values(this.data.units).forEach(note => {
+                    if (note.groupId === this.draggingGroupId) {
+                        note.x += deltaX;
+                        note.y += deltaY;
+                        this.moveNoteElement(note.id, note.x, note.y);
+                    }
+                });
+                
+                // Update group data position and DOM
+                group.x = newX;
+                group.y = newY;
+                this.moveGroupElement(this.draggingGroupId, newX, newY);
+            }
+        }
     },
 
     // Panel mouse up
@@ -336,6 +379,18 @@ const App = {
             this.isResizingGroup = false;
             this.resizingGroupId = null;
             this.saveData();
+        }
+        
+        if (this.isDraggingGroup) {
+            document.getElementById(`group-${this.draggingGroupId}`)?.classList.remove('dragging');
+            
+            if (this.hasDraggedGroup) {
+                this.saveData();
+            }
+            
+            this.isDraggingGroup = false;
+            this.hasDraggedGroup = false;
+            this.draggingGroupId = null;
         }
     },
 
@@ -504,7 +559,33 @@ const App = {
             }
         }
         
-        // Events
+        // Events - drag group by title or body (not resize handle)
+        groupEl.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            // Don't start drag if clicking resize handle
+            if (e.target === resizeHandle) return;
+            // Only drag from title, content area, or group box itself
+            if (e.target === groupEl || e.target === title || e.target === content) {
+                if (!this.isMovable) return;
+                e.preventDefault();
+                e.stopPropagation();
+                
+                this.isDraggingGroup = true;
+                this.hasDraggedGroup = false;
+                this.draggingGroupId = group.id;
+                this.selectedGroup = group.id;
+                
+                const rect = this.panelContainer.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left + this.panelContainer.scrollLeft;
+                const mouseY = e.clientY - rect.top + this.panelContainer.scrollTop;
+                
+                this.groupDragOffsetX = mouseX - group.x;
+                this.groupDragOffsetY = mouseY - group.y;
+                
+                groupEl.classList.add('dragging');
+            }
+        });
+        
         groupEl.addEventListener('contextmenu', (e) => {
             if (e.target === groupEl || e.target === title || e.target === content) {
                 e.preventDefault();
@@ -622,6 +703,14 @@ const App = {
         if (element) {
             element.style.width = width + 'px';
             element.style.height = height + 'px';
+        }
+    },
+
+    moveGroupElement(groupId, x, y) {
+        const element = document.getElementById(`group-${groupId}`);
+        if (element) {
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
         }
     },
 
