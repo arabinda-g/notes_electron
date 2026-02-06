@@ -20,7 +20,7 @@ class SimpleStore {
         try {
             if (fs.existsSync(this.filePath)) {
                 const content = fs.readFileSync(this.filePath, 'utf8');
-                this.data = JSON.parse(content);
+                this.data = this.deepMerge(JSON.parse(JSON.stringify(this.defaults)), JSON.parse(content));
             } else {
                 this.data = JSON.parse(JSON.stringify(this.defaults));
                 this.save();
@@ -29,6 +29,18 @@ class SimpleStore {
             console.error('Failed to load store:', e);
             this.data = JSON.parse(JSON.stringify(this.defaults));
         }
+    }
+
+    deepMerge(target, source) {
+        for (const key in source) {
+            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                if (!target[key] || typeof target[key] !== 'object') target[key] = {};
+                this.deepMerge(target[key], source[key]);
+            } else {
+                target[key] = source[key];
+            }
+        }
+        return target;
     }
 
     save() {
