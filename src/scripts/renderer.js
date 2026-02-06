@@ -251,8 +251,30 @@ const App = {
             this.selectedNotes.forEach(noteId => {
                 const offset = this.dragOffsets[noteId];
                 if (offset) {
-                    const newX = Math.max(0, currentX - offset.x);
-                    const newY = Math.max(0, currentY - offset.y);
+                    let newX = Math.max(0, currentX - offset.x);
+                    let newY = Math.max(0, currentY - offset.y);
+                    
+                    // Constrain to group boundaries if note belongs to a group
+                    const note = this.data.units[noteId];
+                    if (note && note.groupId) {
+                        const group = this.data.groups[note.groupId];
+                        if (group) {
+                            const noteEl = document.getElementById(`note-${noteId}`);
+                            const noteWidth = noteEl ? noteEl.offsetWidth : 80;
+                            const noteHeight = noteEl ? noteEl.offsetHeight : 28;
+                            
+                            // Group content area (small padding from group edges)
+                            const pad = 5;
+                            const minX = group.x + pad;
+                            const minY = group.y + pad;
+                            const maxX = group.x + group.width - pad - noteWidth;
+                            const maxY = group.y + group.height - pad - noteHeight;
+                            
+                            newX = Utils.clamp(newX, minX, Math.max(minX, maxX));
+                            newY = Utils.clamp(newY, minY, Math.max(minY, maxY));
+                        }
+                    }
+                    
                     this.moveNoteElement(noteId, newX, newY);
                 }
             });
