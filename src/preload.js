@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // App info
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),
     getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
+    restartApp: () => ipcRenderer.invoke('restart-app'),
+    getGpuInfo: () => ipcRenderer.invoke('get-gpu-info'),
     
     // Menu commands
     onMenuCommand: (callback) => ipcRenderer.on('menu-command', (event, command, data) => callback(command, data)),

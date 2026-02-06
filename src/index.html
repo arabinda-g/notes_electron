@@ -331,6 +331,17 @@
                     <div class="settings-group">
                         <h3>Performance</h3>
                         <div class="form-row"><label><input type="checkbox" id="setting-enable-animations"> Enable animations</label></div>
+                        <div class="form-row">
+                            <label for="setting-gpu-mode">Rendering Mode:</label>
+                            <select id="setting-gpu-mode">
+                                <option value="auto">Auto (Recommended)</option>
+                                <option value="gpu">GPU (Hardware Acceleration)</option>
+                                <option value="cpu">CPU (Software Rendering)</option>
+                            </select>
+                        </div>
+                        <div class="form-row" id="gpu-mode-note" style="margin-top: 2px;">
+                            <small style="color: var(--text-secondary); font-style: italic;">Changes require an app restart to take effect.</small>
+                        </div>
                     </div>
                 </div>
             </div>

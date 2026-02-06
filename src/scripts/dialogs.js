@@ -797,6 +797,7 @@ const Dialogs = {
         document.getElementById('setting-double-click-edit').checked = config.general.doubleClickToEdit;
         document.getElementById('setting-single-click-copy').checked = config.general.singleClickToCopy;
         document.getElementById('setting-enable-animations').checked = config.general.enableAnimations;
+        document.getElementById('setting-gpu-mode').value = config.general.gpuMode || 'auto';
     },
 
     // Refresh backup list
@@ -980,7 +981,7 @@ const Dialogs = {
     },
 
     // Save Settings
-    saveSettings() {
+    async saveSettings() {
         const config = App.getConfig();
         
         // General
@@ -1027,9 +1028,26 @@ const Dialogs = {
         config.general.singleClickToCopy = document.getElementById('setting-single-click-copy').checked;
         config.general.enableAnimations = document.getElementById('setting-enable-animations').checked;
         
+        const previousGpuMode = config.general.gpuMode || 'auto';
+        config.general.gpuMode = document.getElementById('setting-gpu-mode').value;
+        const gpuModeChanged = previousGpuMode !== config.general.gpuMode;
+        
         App.saveConfig(config);
         this.closeDialog('settings-dialog');
         App.showStatus('Settings saved');
+        
+        // Prompt restart if GPU mode changed
+        if (gpuModeChanged) {
+            const modeLabels = { auto: 'Auto', gpu: 'GPU', cpu: 'CPU' };
+            const confirmed = await window.electronAPI.showConfirmDialog({
+                title: 'Restart Required',
+                message: `Rendering mode changed to "${modeLabels[config.general.gpuMode]}". The app needs to restart for this change to take effect.\n\nRestart now?`,
+                buttons: ['Restart Now', 'Later']
+            });
+            if (confirmed) {
+                window.electronAPI.restartApp();
+            }
+        }
     }
 };
 

@@ -2,6 +2,30 @@ const { app, BrowserWindow, Menu, Tray, ipcMain, globalShortcut, dialog, nativeT
 const path = require('path');
 const fs = require('fs');
 
+// Read GPU mode from config before app is ready
+// app.disableHardwareAcceleration() must be called before app.whenReady()
+(function applyEarlyGpuSettings() {
+    try {
+        const earlyUserDataPath = app.getPath('userData');
+        const configFilePath = path.join(earlyUserDataPath, 'notes-data.json');
+        if (fs.existsSync(configFilePath)) {
+            const data = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+            const gpuMode = data?.config?.general?.gpuMode || 'auto';
+            if (gpuMode === 'cpu') {
+                app.disableHardwareAcceleration();
+            } else if (gpuMode === 'gpu') {
+                app.commandLine.appendSwitch('enable-gpu-rasterization');
+                app.commandLine.appendSwitch('enable-zero-copy');
+                app.commandLine.appendSwitch('ignore-gpu-blocklist');
+            }
+            // 'auto' = Electron defaults, no action needed
+        }
+    } catch (e) {
+        // Silently fail - will use Electron defaults (auto)
+        console.error('Failed to read early GPU settings:', e);
+    }
+})();
+
 // Simple JSON Store implementation
 class SimpleStore {
     constructor(options) {
@@ -102,7 +126,8 @@ const store = new SimpleStore({
                 showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false,
                 autoBackup: true, backupCount: 10, undoLevels: 20,
                 doubleClickToEdit: true, singleClickToCopy: true,
-                enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info'
+                enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info',
+                gpuMode: 'auto'
             }
         }
     }
@@ -478,6 +503,17 @@ ipcMain.handle('get-app-version', () => {
 
 ipcMain.handle('get-user-data-path', () => {
     return userDataPath;
+});
+
+ipcMain.handle('restart-app', () => {
+    app.relaunch();
+    app.exit(0);
+});
+
+ipcMain.handle('get-gpu-info', () => {
+    return {
+        gpuFeatureStatus: app.getGPUFeatureStatus(),
+    };
 });
 
 function createBackup(data) {
