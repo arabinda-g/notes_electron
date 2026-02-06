@@ -3,7 +3,7 @@
 const Utils = {
     // Generate unique ID
     generateId() {
-        return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
+        return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 11);
     },
 
     // Deep clone object
@@ -40,9 +40,9 @@ const Utils = {
     getContrastColor(hexColor) {
         if (!hexColor) return '#000000';
         const hex = hexColor.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
         return luminance > 0.5 ? '#000000' : '#FFFFFF';
     },
@@ -76,9 +76,9 @@ const Utils = {
     // Hex to ARGB integer
     hexToArgb(hex, alpha = 255) {
         const cleaned = hex.replace('#', '');
-        const r = parseInt(cleaned.substr(0, 2), 16);
-        const g = parseInt(cleaned.substr(2, 2), 16);
-        const b = parseInt(cleaned.substr(4, 2), 16);
+        const r = parseInt(cleaned.substring(0, 2), 16);
+        const g = parseInt(cleaned.substring(2, 4), 16);
+        const b = parseInt(cleaned.substring(4, 6), 16);
         return (alpha << 24) | (r << 16) | (g << 8) | b;
     },
 
@@ -111,7 +111,7 @@ const Utils = {
     // Truncate string with ellipsis
     truncate(str, maxLength) {
         if (!str || str.length <= maxLength) return str;
-        return str.substr(0, maxLength - 3) + '...';
+        return str.substring(0, maxLength - 3) + '...';
     },
 
     // Escape HTML

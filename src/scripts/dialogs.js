@@ -80,8 +80,13 @@ const Dialogs = {
         document.getElementById('add-paste-image').addEventListener('click', async () => {
             const imageData = await window.electronAPI.readClipboardImage();
             if (imageData) {
-                document.getElementById('add-image-preview').innerHTML = `<img src="${imageData}" alt="Preview">`;
-                document.getElementById('add-image-preview').dataset.imageData = imageData;
+                const preview = document.getElementById('add-image-preview');
+                preview.textContent = '';
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.alt = 'Preview';
+                preview.appendChild(img);
+                preview.dataset.imageData = imageData;
             } else {
                 App.showStatus('No image in clipboard');
             }
@@ -145,8 +150,13 @@ const Dialogs = {
         document.getElementById('edit-paste-image').addEventListener('click', async () => {
             const imageData = await window.electronAPI.readClipboardImage();
             if (imageData) {
-                document.getElementById('edit-image-preview').innerHTML = `<img src="${imageData}" alt="Preview">`;
-                document.getElementById('edit-image-preview').dataset.imageData = imageData;
+                const preview = document.getElementById('edit-image-preview');
+                preview.textContent = '';
+                const img = document.createElement('img');
+                img.src = imageData;
+                img.alt = 'Preview';
+                preview.appendChild(img);
+                preview.dataset.imageData = imageData;
             } else {
                 App.showStatus('No image in clipboard');
             }
@@ -678,8 +688,13 @@ const Dialogs = {
             document.getElementById('edit-content').value = note.content || '';
         } else if (contentType === 'Image') {
             if (note.contentData) {
-                document.getElementById('edit-image-preview').innerHTML = `<img src="${note.contentData}" alt="Preview">`;
-                document.getElementById('edit-image-preview').dataset.imageData = note.contentData;
+                const preview = document.getElementById('edit-image-preview');
+                preview.textContent = '';
+                const img = document.createElement('img');
+                img.src = note.contentData;
+                img.alt = 'Preview';
+                preview.appendChild(img);
+                preview.dataset.imageData = note.contentData;
             }
         } else if (contentType === 'Object') {
             if (note.contentData) {

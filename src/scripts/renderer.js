@@ -276,7 +276,10 @@ const App = {
         if (this.isDragging) {
             this.isDragging = false;
             
-            // Update data and save
+            // Save state for undo BEFORE updating data (data still has pre-move positions)
+            this.undoManager.saveState(this.data, 'Move notes');
+            
+            // Update data from DOM positions
             this.selectedNotes.forEach(noteId => {
                 const element = document.getElementById(`note-${noteId}`);
                 if (element) {
@@ -285,11 +288,14 @@ const App = {
                 }
             });
             
-            this.saveState('Move notes');
+            this.saveData();
             document.querySelectorAll('.note-button.dragging').forEach(el => el.classList.remove('dragging'));
         }
         
         if (this.isResizingGroup) {
+            // Save state for undo BEFORE updating data (data still has pre-resize dimensions)
+            this.undoManager.saveState(this.data, 'Resize group');
+            
             const element = document.getElementById(`group-${this.resizingGroupId}`);
             if (element) {
                 this.data.groups[this.resizingGroupId].width = parseInt(element.style.width);
@@ -297,7 +303,7 @@ const App = {
             }
             this.isResizingGroup = false;
             this.resizingGroupId = null;
-            this.saveState('Resize group');
+            this.saveData();
         }
     },
 
@@ -387,9 +393,15 @@ const App = {
         
         // Apply button type style
         if (note.buttonType) {
-            const styleClass = Utils.mapButtonType(note.buttonType);
-            if (styleClass) {
-                button.classList.add('style-' + styleClass);
+            // Try .NET button type mapping first, then ButtonStyles lookup
+            const mappedClass = Utils.mapButtonType(note.buttonType);
+            if (mappedClass) {
+                button.classList.add('style-' + mappedClass);
+            } else {
+                const styleClass = ButtonStyles.getStyleClass(note.buttonType);
+                if (styleClass) {
+                    button.classList.add(styleClass);
+                }
             }
         }
         
@@ -448,9 +460,15 @@ const App = {
         
         // Apply group style
         if (group.groupBoxType) {
-            const styleClass = Utils.mapGroupType(group.groupBoxType);
-            if (styleClass) {
-                groupEl.classList.add('style-' + styleClass);
+            // Try .NET group type mapping first, then GroupStyles lookup
+            const mappedClass = Utils.mapGroupType(group.groupBoxType);
+            if (mappedClass) {
+                groupEl.classList.add('style-' + mappedClass);
+            } else {
+                const styleClass = GroupStyles.getStyleClass(group.groupBoxType);
+                if (styleClass) {
+                    groupEl.classList.add(styleClass);
+                }
             }
         }
         
@@ -753,10 +771,13 @@ const App = {
                 ButtonStyles.applyStyle(element, styleName);
             }
             
-            // Update data
-            if (style.bg) {
-                this.data.units[noteId].backgroundColor = style.bg;
-                this.data.units[noteId].textColor = style.text;
+            // Update data - persist style name so it survives re-render/reload
+            if (this.data.units[noteId]) {
+                this.data.units[noteId].buttonType = styleName;
+                if (style.bg) {
+                    this.data.units[noteId].backgroundColor = style.bg;
+                    this.data.units[noteId].textColor = style.text;
+                }
             }
         });
         
@@ -847,6 +868,11 @@ const App = {
         const element = document.getElementById(`group-${this.selectedGroup}`);
         if (element) {
             GroupStyles.applyStyle(element, styleName);
+        }
+        
+        // Persist the style to data so it survives re-render/reload
+        if (this.data.groups[this.selectedGroup]) {
+            this.data.groups[this.selectedGroup].groupBoxType = styleName;
         }
         
         this.saveData();
@@ -981,7 +1007,8 @@ const App = {
                 showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false,
                 autoBackup: true, backupCount: 10, undoLevels: 20,
                 doubleClickToEdit: true, singleClickToCopy: true,
-                enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info'
+                enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info',
+                gpuMode: 'auto'
             }
         };
     },
@@ -1000,12 +1027,6 @@ const App = {
         this.render();
         this.saveData();
         this.showStatus('Applied default style to all notes');
-    },
-
-    // Save state for undo
-    saveState(description) {
-        this.undoManager.saveState(this.data, description);
-        this.saveData();
     },
 
     // Undo

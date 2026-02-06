@@ -195,7 +195,8 @@ function createWindow() {
     });
 
     mainWindow.on('close', (event) => {
-        if (!isQuitting && config.general.closeToTray && tray) {
+        const currentConfig = store.get('config');
+        if (!isQuitting && currentConfig.general.closeToTray && tray) {
             event.preventDefault();
             mainWindow.hide();
             return;
@@ -213,7 +214,8 @@ function createWindow() {
     });
 
     mainWindow.on('minimize', () => {
-        if (config.general.minimizeToTray && tray) {
+        const currentConfig = store.get('config');
+        if (currentConfig.general.minimizeToTray && tray) {
             mainWindow.hide();
         }
     });
