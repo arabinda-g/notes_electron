@@ -1422,8 +1422,9 @@ const App = {
                 this.showStatus(this.autofocus ? 'Autofocus enabled' : 'Autofocus disabled');
                 break;
             case 'toggle-autosave':
-                this.config.general.autoSave = data;
-                this.setupAutoSave();
+                this.config.general.autoSave = !!data;
+                this.saveConfig(this.config);
+                this.showStatus(this.config.general.autoSave ? 'Auto-save enabled' : 'Auto-save disabled');
                 break;
             case 'toggle-autoarrange':
                 this.autoArrange = data;

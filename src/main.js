@@ -526,21 +526,24 @@ function createTray() {
 
 function registerGlobalHotkey() {
     const config = store.get('config');
-    if (!config.hotkey.enabled) return;
-
     globalShortcut.unregisterAll();
-    
-    const modifiers = config.hotkey.modifiers.join('+');
+
+    if (!config || !config.hotkey || !config.hotkey.enabled) return;
+
+    const modifiers = Array.isArray(config.hotkey.modifiers) ? config.hotkey.modifiers.join('+') : '';
     const accelerator = modifiers ? `${modifiers}+${config.hotkey.key}` : config.hotkey.key;
     
     try {
-        globalShortcut.register(accelerator, () => {
+        const registered = globalShortcut.register(accelerator, () => {
             if (mainWindow) {
                 if (mainWindow.isMinimized()) mainWindow.restore();
                 mainWindow.show();
                 mainWindow.focus();
             }
         });
+        if (!registered) {
+            logWarning('Global hotkey registration failed', { accelerator });
+        }
     } catch (e) {
         logError('Failed to register hotkey', { error: e.message });
     }
