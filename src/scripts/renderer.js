@@ -1127,7 +1127,7 @@ const App = {
             window: { x: -1, y: -1, width: 800, height: 600, maximized: false, alwaysOnTop: false, rememberPosition: true, rememberSize: true },
             general: {
                 autoSave: true, autoSaveInterval: 30, confirmDelete: true, confirmReset: true, confirmExit: false,
-                showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false,
+                showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false, startWithWindows: false,
                 autoBackup: true, backupCount: 10, undoLevels: 20,
                 doubleClickToEdit: true, singleClickToCopy: true,
                 enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info',

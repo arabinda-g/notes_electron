@@ -123,7 +123,7 @@ const store = new SimpleStore({
             window: { x: -1, y: -1, width: 800, height: 600, maximized: false, alwaysOnTop: false, rememberPosition: true, rememberSize: true },
             general: {
                 autoSave: true, autoSaveInterval: 30, confirmDelete: true, confirmReset: true, confirmExit: false,
-                showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false,
+                showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false, startWithWindows: false,
                 autoBackup: true, backupCount: 10, undoLevels: 20,
                 doubleClickToEdit: true, singleClickToCopy: true,
                 enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info',
@@ -382,6 +382,23 @@ function registerGlobalHotkey() {
     }
 }
 
+function applyStartWithWindowsSetting(enabled) {
+    // Startup registration is only supported on Windows.
+    if (process.platform !== 'win32') return;
+
+    // In development mode, avoid registering Electron itself at login.
+    if (!app.isPackaged) return;
+
+    try {
+        app.setLoginItemSettings({
+            openAtLogin: !!enabled,
+            path: process.execPath
+        });
+    } catch (e) {
+        console.error('Failed to apply startup setting:', e);
+    }
+}
+
 async function handleImport() {
     const result = await dialog.showOpenDialog(mainWindow, {
         title: 'Import Notes',
@@ -450,6 +467,9 @@ ipcMain.handle('save-config', (event, config) => {
     
     // Update always on top
     mainWindow.setAlwaysOnTop(config.window.alwaysOnTop);
+
+    // Update startup registration
+    applyStartWithWindowsSetting(config.general.startWithWindows);
     
     return true;
 });
@@ -581,6 +601,7 @@ nativeTheme.on('updated', () => {
 
 app.whenReady().then(() => {
     initializePaths();
+    applyStartWithWindowsSetting(store.get('config.general.startWithWindows'));
     createWindow();
 });
 

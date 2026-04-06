@@ -776,6 +776,7 @@ const Dialogs = {
         document.getElementById('setting-minimize-to-tray').checked = config.general.minimizeToTray;
         document.getElementById('setting-close-to-tray').checked = config.general.closeToTray;
         document.getElementById('setting-start-minimized').checked = config.general.startMinimized;
+        document.getElementById('setting-start-with-windows').checked = !!config.general.startWithWindows;
         document.getElementById('setting-theme').value = config.general.theme;
         
         // Hotkeys
@@ -1010,6 +1011,7 @@ const Dialogs = {
         config.general.minimizeToTray = document.getElementById('setting-minimize-to-tray').checked;
         config.general.closeToTray = document.getElementById('setting-close-to-tray').checked;
         config.general.startMinimized = document.getElementById('setting-start-minimized').checked;
+        config.general.startWithWindows = document.getElementById('setting-start-with-windows').checked;
         config.general.theme = document.getElementById('setting-theme').value;
         
         // Hotkeys
