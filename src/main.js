@@ -118,15 +118,16 @@ const store = new SimpleStore({
     defaults: {
         jsonData: { units: {}, groups: {} },
         config: {
-            hotkey: { enabled: true, key: 'N', modifiers: ['Control', 'Alt'] },
+            hotkey: { enabled: false, key: 'N', modifiers: ['Control', 'Alt'] },
             unitStyle: { backgroundColor: '#6495ED', textColor: '#FFFFFF', fontFamily: 'Segoe UI', fontSize: 12 },
             window: { x: -1, y: -1, width: 800, height: 600, maximized: false, alwaysOnTop: false, rememberPosition: true, rememberSize: true },
             general: {
                 autoSave: true, autoSaveInterval: 30, confirmDelete: true, confirmReset: true, confirmExit: false,
-                showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false, startWithWindows: false,
+                showTrayIcon: true, minimizeToTray: false, closeToTray: false, startMinimized: false, startWithWindows: false,
                 autoBackup: true, backupCount: 10, undoLevels: 20,
                 doubleClickToEdit: true, singleClickToCopy: true,
-                enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info',
+                autofocus: false, optimizeForLargeFiles: false,
+                enableAnimations: true, theme: 'SystemDefault', logLevel: 'None',
                 gpuMode: 'auto'
             }
         }
@@ -437,7 +438,7 @@ function createMenu() {
                 { label: 'Redo', accelerator: 'CmdOrCtrl+Y', click: () => mainWindow.webContents.send('menu-command', 'redo') },
                 { type: 'separator' },
                 { label: 'Movable', accelerator: 'CmdOrCtrl+D', type: 'checkbox', checked: true, click: (menuItem) => mainWindow.webContents.send('menu-command', 'toggle-movable', menuItem.checked) },
-                { label: 'Autofocus', type: 'checkbox', checked: false, click: (menuItem) => mainWindow.webContents.send('menu-command', 'toggle-autofocus', menuItem.checked) },
+                { label: 'Autofocus', type: 'checkbox', checked: !!store.get('config.general.autofocus'), click: (menuItem) => mainWindow.webContents.send('menu-command', 'toggle-autofocus', menuItem.checked) },
                 { label: 'Auto Save', type: 'checkbox', checked: store.get('config.general.autoSave'), click: (menuItem) => {
                     store.set('config.general.autoSave', menuItem.checked);
                     mainWindow.webContents.send('menu-command', 'toggle-autosave', menuItem.checked);
@@ -571,7 +572,23 @@ async function handleImport() {
 
     if (!result.canceled && result.filePaths.length > 0) {
         try {
-            const data = fs.readFileSync(result.filePaths[0], 'utf8');
+            const importFilePath = result.filePaths[0];
+            const importFileSize = fs.statSync(importFilePath).size;
+            if (importFileSize > (50 * 1024 * 1024)) {
+                const confirmation = await dialog.showMessageBox(mainWindow, {
+                    type: 'warning',
+                    title: 'Large Import File',
+                    message: 'This file is larger than 50 MB and may take time to import. Continue?',
+                    buttons: ['Continue', 'Cancel'],
+                    defaultId: 1,
+                    cancelId: 1
+                });
+                if (confirmation.response !== 0) {
+                    return;
+                }
+            }
+
+            const data = fs.readFileSync(importFilePath, 'utf8');
             const jsonData = JSON.parse(data);
             mainWindow.webContents.send('import-data', jsonData);
         } catch (e) {
@@ -588,7 +605,8 @@ async function handleExport() {
     });
 
     if (!result.canceled && result.filePath) {
-        mainWindow.webContents.send('request-export', result.filePath);
+        const exportFilePath = path.extname(result.filePath) ? result.filePath : `${result.filePath}.json`;
+        mainWindow.webContents.send('request-export', exportFilePath);
     }
 }
 
@@ -638,6 +656,9 @@ ipcMain.handle('save-config', (event, config) => {
 
     // Update startup registration
     applyStartWithWindowsSetting(config.general.startWithWindows);
+
+    // Refresh menu checkbox states from persisted config.
+    createMenu();
     
     return true;
 });
@@ -651,7 +672,9 @@ ipcMain.handle('log-message', (event, level, message, details) => {
 
 ipcMain.handle('export-file', (event, filePath, data) => {
     try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+        const optimizeForLargeFiles = !!store.get('config.general.optimizeForLargeFiles');
+        const spacing = optimizeForLargeFiles ? 0 : 2;
+        fs.writeFileSync(filePath, JSON.stringify(data, null, spacing), 'utf8');
         return true;
     } catch (e) {
         return false;

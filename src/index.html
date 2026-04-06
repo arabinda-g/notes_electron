@@ -40,6 +40,14 @@
                     </select>
                 </div>
                 <div class="form-row">
+                    <label for="add-category">Category:</label>
+                    <input type="text" id="add-category" maxlength="100" placeholder="Optional category">
+                </div>
+                <div class="form-row">
+                    <label for="add-tags">Tags:</label>
+                    <input type="text" id="add-tags" maxlength="300" placeholder="Comma-separated tags">
+                </div>
+                <div class="form-row">
                     <label for="add-bg-color">Background:</label>
                     <input type="color" id="add-bg-color" value="#6495ED">
                     <button type="button" class="color-btn" id="add-bg-color-btn" style="background-color: #6495ED;"></button>
@@ -59,6 +67,14 @@
                         <option value="Text">Text</option>
                         <option value="Image">Image</option>
                         <option value="Object">Object</option>
+                    </select>
+                </div>
+                <div class="form-row" id="add-content-format-row">
+                    <label for="add-content-format">Content Format:</label>
+                    <select id="add-content-format">
+                        <option value="plain">Plain</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="rtf">RTF</option>
                     </select>
                 </div>
                 <div class="form-row content-row">
@@ -101,6 +117,14 @@
                     </select>
                 </div>
                 <div class="form-row">
+                    <label for="edit-category">Category:</label>
+                    <input type="text" id="edit-category" maxlength="100" placeholder="Optional category">
+                </div>
+                <div class="form-row">
+                    <label for="edit-tags">Tags:</label>
+                    <input type="text" id="edit-tags" maxlength="300" placeholder="Comma-separated tags">
+                </div>
+                <div class="form-row">
                     <label for="edit-bg-color">Background:</label>
                     <input type="color" id="edit-bg-color" value="#6495ED">
                     <button type="button" class="color-btn" id="edit-bg-color-btn" style="background-color: #6495ED;"></button>
@@ -120,6 +144,14 @@
                         <option value="Text">Text</option>
                         <option value="Image">Image</option>
                         <option value="Object">Object</option>
+                    </select>
+                </div>
+                <div class="form-row" id="edit-content-format-row">
+                    <label for="edit-content-format">Content Format:</label>
+                    <select id="edit-content-format">
+                        <option value="plain">Plain</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="rtf">RTF</option>
                     </select>
                 </div>
                 <div class="form-row content-row">
@@ -331,6 +363,7 @@
                         </div>
                         <div class="form-row"><label><input type="checkbox" id="setting-double-click-edit"> Double-click to edit</label></div>
                         <div class="form-row"><label><input type="checkbox" id="setting-single-click-copy"> Single-click to copy</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-autofocus"> Autofocus selected note</label></div>
                     </div>
                     <div class="settings-group">
                         <h3>Logging</h3>
@@ -365,6 +398,7 @@
                     <div class="settings-group">
                         <h3>Performance</h3>
                         <div class="form-row"><label><input type="checkbox" id="setting-enable-animations"> Enable animations</label></div>
+                        <div class="form-row"><label><input type="checkbox" id="setting-optimize-large-files"> Optimize for large number of notes</label></div>
                         <div class="form-row">
                             <label for="setting-gpu-mode">Rendering Mode:</label>
                             <select id="setting-gpu-mode">

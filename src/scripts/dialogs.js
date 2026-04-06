@@ -74,6 +74,7 @@ const Dialogs = {
             const fontStr = document.getElementById('add-font-btn').textContent;
             this.showFontDialog(fontStr, (newFont) => {
                 document.getElementById('add-font-btn').textContent = newFont;
+                this.applyDialogStylePreview('add');
             });
         });
 
@@ -144,6 +145,7 @@ const Dialogs = {
             const fontStr = document.getElementById('edit-font-btn').textContent;
             this.showFontDialog(fontStr, (newFont) => {
                 document.getElementById('edit-font-btn').textContent = newFont;
+                this.applyDialogStylePreview('edit');
             });
         });
 
@@ -616,6 +618,11 @@ const Dialogs = {
         if (panel) {
             panel.classList.add('active');
         }
+
+        const formatRow = document.getElementById(`${prefix}-content-format-row`);
+        if (formatRow) {
+            formatRow.style.display = type === 'Text' ? 'flex' : 'none';
+        }
     },
 
     getObjectSummary(payloadOrString) {
@@ -653,7 +660,29 @@ const Dialogs = {
         input.addEventListener('input', () => {
             button.style.backgroundColor = input.value;
             button.style.color = Utils.getContrastColor(input.value);
+            if (inputId === 'add-bg-color' || inputId === 'add-text-color') {
+                this.applyDialogStylePreview('add');
+            }
+            if (inputId === 'edit-bg-color' || inputId === 'edit-text-color') {
+                this.applyDialogStylePreview('edit');
+            }
         });
+    },
+
+    parseTags(rawTags) {
+        return String(rawTags || '')
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(Boolean);
+    },
+
+    applyDialogStylePreview(prefix) {
+        const bgColor = document.getElementById(`${prefix}-bg-color`)?.value || '#6495ED';
+        const fontButton = document.getElementById(`${prefix}-font-btn`);
+        if (!fontButton) return;
+        fontButton.style.backgroundColor = bgColor;
+        fontButton.style.color = Utils.getContrastColor(bgColor);
+        fontButton.title = fontButton.textContent || '';
     },
 
     // Show font dialog
@@ -680,8 +709,11 @@ const Dialogs = {
     showAddNoteDialog(x = 50, y = 50) {
         // Reset form
         document.getElementById('add-title').value = '';
+        document.getElementById('add-category').value = '';
+        document.getElementById('add-tags').value = '';
         document.getElementById('add-content').value = '';
         document.getElementById('add-content-type').value = 'Text';
+        document.getElementById('add-content-format').value = 'plain';
         this.switchContentPanel('add', 'Text');
         
         // Set default colors from config
@@ -691,14 +723,17 @@ const Dialogs = {
         
         document.getElementById('add-bg-color').value = bgColor;
         document.getElementById('add-bg-color-btn').style.backgroundColor = bgColor;
+        document.getElementById('add-bg-color-btn').style.color = Utils.getContrastColor(bgColor);
         document.getElementById('add-text-color').value = textColor;
         document.getElementById('add-text-color-btn').style.backgroundColor = textColor;
+        document.getElementById('add-text-color-btn').style.color = Utils.getContrastColor(textColor);
         
         const fontStr = Utils.buildFontString(
             config.unitStyle.fontFamily || 'Segoe UI',
             config.unitStyle.fontSize || 12
         );
         document.getElementById('add-font-btn').textContent = fontStr;
+        this.applyDialogStylePreview('add');
         
         // Populate groups
         this.populateGroupSelect('add-group');
@@ -719,6 +754,8 @@ const Dialogs = {
     // Show Edit Note dialog
     showEditNoteDialog(note) {
         document.getElementById('edit-title').value = note.title || '';
+        document.getElementById('edit-category').value = note.category || '';
+        document.getElementById('edit-tags').value = Array.isArray(note.tags) ? note.tags.join(', ') : '';
         
         // Set colors
         const bgColor = note.backgroundColor || '#6495ED';
@@ -726,8 +763,10 @@ const Dialogs = {
         
         document.getElementById('edit-bg-color').value = bgColor;
         document.getElementById('edit-bg-color-btn').style.backgroundColor = bgColor;
+        document.getElementById('edit-bg-color-btn').style.color = Utils.getContrastColor(bgColor);
         document.getElementById('edit-text-color').value = textColor;
         document.getElementById('edit-text-color-btn').style.backgroundColor = textColor;
+        document.getElementById('edit-text-color-btn').style.color = Utils.getContrastColor(textColor);
         
         // Set font
         const fontStr = Utils.buildFontString(
@@ -737,6 +776,7 @@ const Dialogs = {
             note.fontItalic || false
         );
         document.getElementById('edit-font-btn').textContent = fontStr;
+        this.applyDialogStylePreview('edit');
         
         // Populate groups
         this.populateGroupSelect('edit-group', note.groupId);
@@ -744,6 +784,7 @@ const Dialogs = {
         // Set content type and content
         const contentType = note.contentType || 'Text';
         document.getElementById('edit-content-type').value = contentType;
+        document.getElementById('edit-content-format').value = note.contentFormat || 'plain';
         this.switchContentPanel('edit', contentType);
         
         if (contentType === 'Text') {
@@ -884,7 +925,9 @@ const Dialogs = {
         document.getElementById('setting-undo-levels').value = config.general.undoLevels;
         document.getElementById('setting-double-click-edit').checked = config.general.doubleClickToEdit;
         document.getElementById('setting-single-click-copy').checked = config.general.singleClickToCopy;
+        document.getElementById('setting-autofocus').checked = !!config.general.autofocus;
         document.getElementById('setting-enable-animations').checked = config.general.enableAnimations;
+        document.getElementById('setting-optimize-large-files').checked = !!config.general.optimizeForLargeFiles;
         document.getElementById('setting-log-level').value = config.general.logLevel || 'Info';
         document.getElementById('setting-gpu-mode').value = config.general.gpuMode || 'auto';
     },
@@ -968,6 +1011,11 @@ const Dialogs = {
             content: content,
             contentType: contentType,
             contentData: contentData,
+            contentFormat: contentType === 'Text'
+                ? (document.getElementById('add-content-format').value || 'plain')
+                : (contentType === 'Image' ? 'png' : 'clipboard-binary'),
+            category: document.getElementById('add-category').value.trim(),
+            tags: this.parseTags(document.getElementById('add-tags').value),
             backgroundColor: document.getElementById('add-bg-color').value,
             textColor: document.getElementById('add-text-color').value,
             fontFamily: parsedFont.family,
@@ -1019,6 +1067,11 @@ const Dialogs = {
             content: content,
             contentType: contentType,
             contentData: contentData,
+            contentFormat: contentType === 'Text'
+                ? (document.getElementById('edit-content-format').value || 'plain')
+                : (contentType === 'Image' ? 'png' : 'clipboard-binary'),
+            category: document.getElementById('edit-category').value.trim(),
+            tags: this.parseTags(document.getElementById('edit-tags').value),
             backgroundColor: document.getElementById('edit-bg-color').value,
             textColor: document.getElementById('edit-text-color').value,
             fontFamily: parsedFont.family,
@@ -1116,7 +1169,9 @@ const Dialogs = {
         config.general.undoLevels = parseInt(document.getElementById('setting-undo-levels').value) || 20;
         config.general.doubleClickToEdit = document.getElementById('setting-double-click-edit').checked;
         config.general.singleClickToCopy = document.getElementById('setting-single-click-copy').checked;
+        config.general.autofocus = document.getElementById('setting-autofocus').checked;
         config.general.enableAnimations = document.getElementById('setting-enable-animations').checked;
+        config.general.optimizeForLargeFiles = document.getElementById('setting-optimize-large-files').checked;
         config.general.logLevel = document.getElementById('setting-log-level').value;
         
         const previousGpuMode = config.general.gpuMode || 'auto';

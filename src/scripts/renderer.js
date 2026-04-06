@@ -1,6 +1,9 @@
 // Main Application Logic
 
 const App = {
+    MAX_CONTENT_DATA_CHARS: 10_000_000,
+    LARGE_IMPORT_SIZE_BYTES: 50 * 1024 * 1024,
+
     // State
     data: { units: {}, groups: {} },
     config: null,
@@ -60,6 +63,9 @@ const App = {
         const storeData = await window.electronAPI.getStoreData();
         this.data = this.migrateData(storeData.jsonData);
         this.config = storeData.config;
+        this.config.general.autofocus = !!this.config.general.autofocus;
+        this.config.general.optimizeForLargeFiles = !!this.config.general.optimizeForLargeFiles;
+        this.autofocus = this.config.general.autofocus;
         
         // Initialize undo manager
         this.undoManager = new UndoRedoManager(this.config.general.undoLevels || 20);
@@ -149,12 +155,15 @@ const App = {
         // Convert units
         const migratedUnits = {};
         Object.entries(units).forEach(([key, unit]) => {
-            migratedUnits[key] = {
+            const normalized = {
                 id: unit.id ?? unit.Id ?? key,
                 title: unit.title ?? unit.Title ?? '',
-                content: unit.content ?? unit.Content ?? unit.ContentData ?? '',
+                content: unit.content ?? unit.Content ?? ((unit.contentType ?? unit.ContentType ?? 'Text') === 'Text' ? (unit.contentData ?? unit.ContentData ?? '') : ''),
                 contentType: unit.contentType ?? unit.ContentType ?? 'Text',
                 contentData: unit.contentData ?? unit.ContentData ?? '',
+                contentFormat: unit.contentFormat ?? unit.ContentFormat ?? 'plain',
+                category: unit.category ?? unit.Category ?? '',
+                tags: unit.tags ?? unit.Tags ?? [],
                 backgroundColor: this.convertColor(unit.backgroundColor ?? unit.BackgroundColor),
                 textColor: this.convertColor(unit.textColor ?? unit.TextColor),
                 fontFamily: unit.fontFamily || (unit.Font ? unit.Font.split(',')[0] : 'Segoe UI'),
@@ -168,6 +177,7 @@ const App = {
                 createdDate: unit.createdDate ?? unit.CreatedDate ?? new Date().toISOString(),
                 modifiedDate: unit.modifiedDate ?? unit.ModifiedDate ?? new Date().toISOString()
             };
+            migratedUnits[key] = this.normalizeUnit(normalized);
         });
         
         // Convert groups
@@ -188,6 +198,85 @@ const App = {
         });
         
         return { units: migratedUnits, groups: migratedGroups };
+    },
+
+    normalizeContentType(contentType) {
+        const normalized = String(contentType || 'Text').trim().toLowerCase();
+        if (normalized === 'image') return 'Image';
+        if (normalized === 'object') return 'Object';
+        return 'Text';
+    },
+
+    normalizeContentFormat(contentFormat) {
+        const normalized = String(contentFormat || '').trim().toLowerCase();
+        if (!normalized) return 'plain';
+        if (normalized === 'rtf' || normalized === 'markdown' || normalized === 'md') {
+            return normalized === 'md' ? 'markdown' : normalized;
+        }
+        return normalized;
+    },
+
+    sanitizeUnitContent(unit) {
+        if (!unit) return;
+        if (typeof unit.contentData === 'string' && unit.contentData.length > this.MAX_CONTENT_DATA_CHARS) {
+            unit.contentData = unit.contentData.substring(0, this.MAX_CONTENT_DATA_CHARS);
+        }
+        if (typeof unit.content === 'string' && unit.content.length > this.MAX_CONTENT_DATA_CHARS) {
+            unit.content = unit.content.substring(0, this.MAX_CONTENT_DATA_CHARS);
+        }
+    },
+
+    validateUnitBinaryContent(unit) {
+        if (!unit || !unit.contentData || typeof unit.contentData !== 'string') return;
+        if (unit.contentType === 'Image' && !unit.contentData.startsWith('data:image/')) {
+            unit.contentData = '';
+        }
+    },
+
+    normalizeUnit(unit) {
+        const normalized = { ...unit };
+        normalized.contentType = this.normalizeContentType(normalized.contentType);
+        normalized.contentFormat = this.normalizeContentFormat(normalized.contentFormat);
+        normalized.category = typeof normalized.category === 'string' ? normalized.category : '';
+        normalized.tags = Array.isArray(normalized.tags) ? normalized.tags.map(tag => String(tag)) : [];
+        normalized.groupId = normalized.groupId || null;
+        normalized.backgroundColor = this.convertColor(normalized.backgroundColor);
+        normalized.textColor = this.convertColor(normalized.textColor);
+        normalized.fontFamily = normalized.fontFamily || 'Segoe UI';
+        normalized.fontSize = Number.isFinite(Number(normalized.fontSize)) ? Number(normalized.fontSize) : 12;
+        normalized.fontBold = !!normalized.fontBold;
+        normalized.fontItalic = !!normalized.fontItalic;
+        normalized.x = Number.isFinite(Number(normalized.x)) ? Number(normalized.x) : 50;
+        normalized.y = Number.isFinite(Number(normalized.y)) ? Number(normalized.y) : 50;
+        normalized.content = normalized.contentType === 'Text' ? String(normalized.content || '') : '';
+        if (normalized.contentType !== 'Text') {
+            normalized.contentData = normalized.contentData || '';
+        }
+        this.sanitizeUnitContent(normalized);
+        this.validateUnitBinaryContent(normalized);
+        return normalized;
+    },
+
+    generateUniqueTitle(baseTitle, existingTitles, fallbackPrefix) {
+        const raw = String(baseTitle || '').trim();
+        const initial = raw || fallbackPrefix;
+        let candidate = initial;
+        let suffix = 1;
+        while (existingTitles.has(candidate.toLowerCase())) {
+            suffix += 1;
+            candidate = `${initial} (${suffix})`;
+        }
+        existingTitles.add(candidate.toLowerCase());
+        return candidate;
+    },
+
+    generateUniqueId(existingIds) {
+        let id = Utils.generateId();
+        while (existingIds.has(id)) {
+            id = Utils.generateId();
+        }
+        existingIds.add(id);
+        return id;
     },
 
     // Convert color from ARGB int to hex
@@ -226,6 +315,16 @@ const App = {
             const files = Array.from(e.dataTransfer.files);
             const jsonFile = files.find(f => f.name.endsWith('.json'));
             if (jsonFile) {
+                if (jsonFile.size > this.LARGE_IMPORT_SIZE_BYTES) {
+                    const confirmed = await window.electronAPI.showConfirmDialog({
+                        title: 'Large Import File',
+                        message: 'This file is larger than 50 MB and may take time to import. Continue?',
+                        buttons: ['Continue', 'Cancel']
+                    });
+                    if (!confirmed) {
+                        return;
+                    }
+                }
                 const text = await jsonFile.text();
                 try {
                     const data = JSON.parse(text);
@@ -667,6 +766,10 @@ const App = {
                 document.getElementById(`note-${id}`)?.classList.add('dragging');
             });
         }
+
+        if (this.autofocus) {
+            document.getElementById(`note-${noteId}`)?.focus();
+        }
     },
 
     // Note click
@@ -760,8 +863,9 @@ const App = {
     // Add note
     addNote(note) {
         this.undoManager.saveState(this.data, 'Add note');
-        this.data.units[note.id] = note;
-        this.renderNote(note);
+        const normalized = this.normalizeUnit(note);
+        this.data.units[note.id] = normalized;
+        this.renderNote(normalized);
         this.saveData();
         this.showStatus('Note added');
         
@@ -775,7 +879,8 @@ const App = {
     // Update note
     updateNote(noteId, updates) {
         this.undoManager.saveState(this.data, 'Update note');
-        Object.assign(this.data.units[noteId], updates);
+        const merged = { ...this.data.units[noteId], ...updates };
+        this.data.units[noteId] = this.normalizeUnit(merged);
         
         // Re-render note
         const oldElement = document.getElementById(`note-${noteId}`);
@@ -1153,6 +1258,7 @@ const App = {
     // Save config
     async saveConfig(config) {
         this.config = config;
+        this.autofocus = !!config.general.autofocus;
         await window.electronAPI.saveConfig(config);
         
         // Apply settings
@@ -1165,18 +1271,20 @@ const App = {
     // Reset config
     resetConfig() {
         this.config = {
-            hotkey: { enabled: true, key: 'N', modifiers: ['Control', 'Alt'] },
+            hotkey: { enabled: false, key: 'N', modifiers: ['Control', 'Alt'] },
             unitStyle: { backgroundColor: '#6495ED', textColor: '#FFFFFF', fontFamily: 'Segoe UI', fontSize: 12 },
             window: { x: -1, y: -1, width: 800, height: 600, maximized: false, alwaysOnTop: false, rememberPosition: true, rememberSize: true },
             general: {
                 autoSave: true, autoSaveInterval: 30, confirmDelete: true, confirmReset: true, confirmExit: false,
-                showTrayIcon: true, minimizeToTray: true, closeToTray: false, startMinimized: false, startWithWindows: false,
+                showTrayIcon: true, minimizeToTray: false, closeToTray: false, startMinimized: false, startWithWindows: false,
                 autoBackup: true, backupCount: 10, undoLevels: 20,
                 doubleClickToEdit: true, singleClickToCopy: true,
-                enableAnimations: true, theme: 'SystemDefault', logLevel: 'Info',
+                enableAnimations: true, theme: 'SystemDefault', logLevel: 'None',
+                autofocus: false, optimizeForLargeFiles: false,
                 gpuMode: 'auto'
             }
         };
+        this.autofocus = false;
     },
 
     // Apply default style to all notes
@@ -1309,6 +1417,9 @@ const App = {
                 break;
             case 'toggle-autofocus':
                 this.autofocus = data;
+                this.config.general.autofocus = !!data;
+                window.electronAPI.saveConfig(this.config);
+                this.showStatus(this.autofocus ? 'Autofocus enabled' : 'Autofocus disabled');
                 break;
             case 'toggle-autosave':
                 this.config.general.autoSave = data;
@@ -1369,6 +1480,9 @@ const App = {
             title: 'Welcome to Notes!',
             content: 'Double-click to edit this note. Right-click for more options.',
             contentType: 'Text',
+            contentFormat: 'plain',
+            category: 'System',
+            tags: ['welcome', 'help'],
             backgroundColor: '#6495ED',
             textColor: '#FFFFFF',
             fontFamily: 'Segoe UI',
@@ -1385,16 +1499,63 @@ const App = {
 
     // Import data
     importData(data) {
+        const preImportState = Utils.deepClone(this.data);
         this.undoManager.saveState(this.data, 'Import');
-        const migrated = this.migrateData(data);
-        
-        // Merge with existing
-        Object.assign(this.data.units, migrated.units);
-        Object.assign(this.data.groups, migrated.groups);
-        
-        this.render();
-        this.saveData();
-        this.showStatus('Data imported');
+        try {
+            const migrated = this.migrateData(data);
+            if (!migrated || typeof migrated !== 'object' || !migrated.units || !migrated.groups) {
+                throw new Error('Import file is invalid or corrupted.');
+            }
+
+            const existingIds = new Set([
+                ...Object.keys(this.data.units),
+                ...Object.keys(this.data.groups)
+            ]);
+            const existingUnitTitles = new Set(
+                Object.values(this.data.units).map(unit => String(unit.title || '').trim().toLowerCase())
+            );
+            const existingGroupTitles = new Set(
+                Object.values(this.data.groups).map(group => String(group.title || '').trim().toLowerCase())
+            );
+            const groupIdMap = new Map();
+
+            Object.values(migrated.groups).forEach((group) => {
+                const oldId = group.id;
+                const newId = this.generateUniqueId(existingIds);
+                const title = this.generateUniqueTitle(group.title, existingGroupTitles, 'Group');
+                this.data.groups[newId] = {
+                    ...group,
+                    id: newId,
+                    title
+                };
+                groupIdMap.set(oldId, newId);
+            });
+
+            Object.values(migrated.units).forEach((unit) => {
+                const newId = this.generateUniqueId(existingIds);
+                const normalized = this.normalizeUnit(unit);
+                const title = this.generateUniqueTitle(normalized.title, existingUnitTitles, 'Untitled');
+                const mappedGroupId = normalized.groupId && groupIdMap.has(normalized.groupId)
+                    ? groupIdMap.get(normalized.groupId)
+                    : null;
+
+                this.data.units[newId] = {
+                    ...normalized,
+                    id: newId,
+                    groupId: mappedGroupId,
+                    title
+                };
+            });
+
+            this.render();
+            this.saveData();
+            this.showStatus('Data imported');
+        } catch (error) {
+            this.data = preImportState;
+            this.render();
+            this.showStatus('Import failed');
+            this.log('Error', 'Import failed', { error: error?.message || String(error) });
+        }
     },
 
     // Export data
