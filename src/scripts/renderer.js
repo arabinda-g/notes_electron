@@ -859,6 +859,22 @@ const App = {
         if (note.contentType === 'Image' && note.contentData) {
             await window.electronAPI.writeClipboardImage(note.contentData);
             this.showStatus('Image copied to clipboard');
+        } else if (note.contentType === 'Object' && note.contentData) {
+            let restored = false;
+            if (typeof note.contentData === 'string') {
+                try {
+                    const payload = JSON.parse(note.contentData);
+                    restored = await window.electronAPI.writeClipboardObject(payload);
+                } catch (_) {
+                    // Legacy plain-text fallback below.
+                }
+            } else if (typeof note.contentData === 'object') {
+                restored = await window.electronAPI.writeClipboardObject(note.contentData);
+            }
+            if (!restored) {
+                await window.electronAPI.writeClipboardText(String(note.contentData));
+            }
+            this.showStatus('Object copied to clipboard');
         } else {
             await window.electronAPI.writeClipboardText(content);
             this.showStatus('Copied to clipboard');

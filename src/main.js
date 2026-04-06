@@ -136,6 +136,8 @@ const store = new SimpleStore({
 let mainWindow;
 let tray = null;
 let isQuitting = false;
+let isShowingErrorDialog = false;
+let lastErrorDialogAt = 0;
 
 // Paths
 const userDataPath = app.getPath('userData');
@@ -212,6 +214,78 @@ function logWarning(message, details = null) { writeLog('Warning', message, deta
 function logInfo(message, details = null) { writeLog('Info', message, details); }
 function logDebug(message, details = null) { writeLog('Debug', message, details); }
 
+function formatErrorDetails(errorLike) {
+    if (!errorLike) return '';
+    if (errorLike instanceof Error) {
+        return errorLike.stack || errorLike.message || String(errorLike);
+    }
+    if (typeof errorLike === 'object') {
+        try {
+            return JSON.stringify(errorLike);
+        } catch (_) {
+            return String(errorLike);
+        }
+    }
+    return String(errorLike);
+}
+
+function showUserErrorDialog(title, message, details = '') {
+    // Prevent message box storms during repeated runtime failures.
+    const now = Date.now();
+    if (isShowingErrorDialog) return;
+    if (now - lastErrorDialogAt < 2500) return;
+    lastErrorDialogAt = now;
+    isShowingErrorDialog = true;
+
+    const detailText = details ? `\n\nDetails:\n${details}` : '';
+    const fullMessage = `${message}\n\nA log entry has been written to the Logs folder.${detailText}`;
+
+    const cleanup = () => {
+        isShowingErrorDialog = false;
+    };
+
+    try {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            dialog.showMessageBox(mainWindow, {
+                type: 'error',
+                title,
+                message: fullMessage,
+                buttons: ['OK'],
+                defaultId: 0
+            }).finally(cleanup);
+            return;
+        }
+        dialog.showMessageBox({
+            type: 'error',
+            title,
+            message: fullMessage,
+            buttons: ['OK'],
+            defaultId: 0
+        }).finally(cleanup);
+    } catch (_) {
+        // Fallback if showMessageBox cannot be displayed in current state.
+        try {
+            dialog.showErrorBox(title, fullMessage);
+        } finally {
+            cleanup();
+        }
+    }
+}
+
+function registerGlobalExceptionHandlers() {
+    process.on('uncaughtException', (error) => {
+        const details = formatErrorDetails(error);
+        logError('Uncaught exception in main process', { details });
+        showUserErrorDialog('Unexpected Error', 'An unexpected application error occurred.', details);
+    });
+
+    process.on('unhandledRejection', (reason) => {
+        const details = formatErrorDetails(reason);
+        logError('Unhandled promise rejection in main process', { details });
+        showUserErrorDialog('Unexpected Error', 'An unhandled background error occurred.', details);
+    });
+}
+
 // Initialize store and directories after app is ready
 function initializePaths() {
     if (!fs.existsSync(backupPath)) fs.mkdirSync(backupPath, { recursive: true });
@@ -244,6 +318,23 @@ function createWindow() {
     }
 
     mainWindow = new BrowserWindow(windowOptions);
+    mainWindow.webContents.on('render-process-gone', (event, details) => {
+        logError('Renderer process terminated unexpectedly', details);
+        showUserErrorDialog(
+            'Renderer Process Error',
+            'The UI process crashed or was terminated. Please restart the app.',
+            formatErrorDetails(details)
+        );
+    });
+
+    mainWindow.webContents.on('unresponsive', () => {
+        logWarning('Renderer process became unresponsive');
+        showUserErrorDialog(
+            'Application Not Responding',
+            'The application UI is not responding. You may need to wait or restart.',
+            ''
+        );
+    });
 
     if (windowConfig.maximized) {
         mainWindow.maximize();
@@ -592,6 +683,69 @@ ipcMain.handle('write-clipboard-image', (event, dataUrl) => {
     return true;
 });
 
+ipcMain.handle('capture-clipboard-object', () => {
+    try {
+        const formats = clipboard.availableFormats();
+        if (!formats || formats.length === 0) return null;
+
+        const serializedFormats = {};
+        let totalBytes = 0;
+        for (const format of formats) {
+            try {
+                const buf = clipboard.readBuffer(format);
+                if (!buf || buf.length === 0) continue;
+                serializedFormats[format] = buf.toString('base64');
+                totalBytes += buf.length;
+            } catch (_) {
+                // Skip unreadable formats and continue.
+            }
+        }
+
+        const capturedFormats = Object.keys(serializedFormats);
+        if (capturedFormats.length === 0) return null;
+
+        const textPreview = (clipboard.readText() || '').slice(0, 120);
+        return {
+            version: 1,
+            capturedAt: new Date().toISOString(),
+            formatCount: capturedFormats.length,
+            totalBytes,
+            textPreview,
+            formats: serializedFormats
+        };
+    } catch (e) {
+        logError('Failed to capture clipboard object', { error: e.message });
+        return null;
+    }
+});
+
+ipcMain.handle('write-clipboard-object', (event, payload) => {
+    try {
+        if (!payload || typeof payload !== 'object') return false;
+        if (!payload.formats || typeof payload.formats !== 'object') return false;
+
+        const formats = Object.entries(payload.formats);
+        if (formats.length === 0) return false;
+
+        // Replace clipboard contents with captured multi-format data.
+        clipboard.clear();
+        for (const [format, base64] of formats) {
+            if (!format || typeof base64 !== 'string' || !base64) continue;
+            try {
+                const buf = Buffer.from(base64, 'base64');
+                if (buf.length === 0) continue;
+                clipboard.writeBuffer(format, buf);
+            } catch (_) {
+                // Continue restoring remaining formats.
+            }
+        }
+        return true;
+    } catch (e) {
+        logError('Failed to restore clipboard object', { error: e.message });
+        return false;
+    }
+});
+
 ipcMain.handle('show-confirm-dialog', async (event, options) => {
     const result = await dialog.showMessageBox(mainWindow, {
         type: 'question',
@@ -759,6 +913,8 @@ app.whenReady().then(() => {
     applyStartWithWindowsSetting(store.get('config.general.startWithWindows'));
     createWindow();
 });
+
+registerGlobalExceptionHandlers();
 
 app.on('window-all-closed', () => {
     logInfo('All windows closed');

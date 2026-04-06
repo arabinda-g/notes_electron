@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     writeClipboardText: (text) => ipcRenderer.invoke('write-clipboard-text', text),
     readClipboardImage: () => ipcRenderer.invoke('read-clipboard-image'),
     writeClipboardImage: (dataUrl) => ipcRenderer.invoke('write-clipboard-image', dataUrl),
+    captureClipboardObject: () => ipcRenderer.invoke('capture-clipboard-object'),
+    writeClipboardObject: (payload) => ipcRenderer.invoke('write-clipboard-object', payload),
     
     // Dialogs
     showConfirmDialog: (options) => ipcRenderer.invoke('show-confirm-dialog', options),

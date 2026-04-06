@@ -95,10 +95,10 @@ const Dialogs = {
 
         // Paste object
         document.getElementById('add-paste-object').addEventListener('click', async () => {
-            const text = await window.electronAPI.readClipboardText();
-            if (text) {
-                document.getElementById('add-object-summary').textContent = `Text content: ${text.substring(0, 100)}...`;
-                document.getElementById('add-object-summary').dataset.objectData = text;
+            const payload = await window.electronAPI.captureClipboardObject();
+            if (payload) {
+                document.getElementById('add-object-summary').textContent = this.getObjectSummary(payload);
+                document.getElementById('add-object-summary').dataset.objectData = JSON.stringify(payload);
             } else {
                 App.showStatus('No content in clipboard');
             }
@@ -165,10 +165,10 @@ const Dialogs = {
 
         // Paste object
         document.getElementById('edit-paste-object').addEventListener('click', async () => {
-            const text = await window.electronAPI.readClipboardText();
-            if (text) {
-                document.getElementById('edit-object-summary').textContent = `Text content: ${text.substring(0, 100)}...`;
-                document.getElementById('edit-object-summary').dataset.objectData = text;
+            const payload = await window.electronAPI.captureClipboardObject();
+            if (payload) {
+                document.getElementById('edit-object-summary').textContent = this.getObjectSummary(payload);
+                document.getElementById('edit-object-summary').dataset.objectData = JSON.stringify(payload);
             } else {
                 App.showStatus('No content in clipboard');
             }
@@ -618,6 +618,31 @@ const Dialogs = {
         }
     },
 
+    getObjectSummary(payloadOrString) {
+        let payload = payloadOrString;
+        if (typeof payloadOrString === 'string') {
+            try {
+                payload = JSON.parse(payloadOrString);
+            } catch (_) {
+                // Legacy plain-text object data support.
+                return `Text content: ${payloadOrString.slice(0, 100)}${payloadOrString.length > 100 ? '...' : ''}`;
+            }
+        }
+
+        if (!payload || typeof payload !== 'object') {
+            return 'Object data stored';
+        }
+
+        const formatCount = Number(payload.formatCount) || (payload.formats ? Object.keys(payload.formats).length : 0);
+        const totalBytes = Number(payload.totalBytes) || 0;
+        const kb = (totalBytes / 1024).toFixed(1);
+        const preview = (payload.textPreview || '').trim();
+        if (preview) {
+            return `${formatCount} format(s), ${kb} KB - "${preview}"`;
+        }
+        return `${formatCount} format(s), ${kb} KB`;
+    },
+
     // Initialize color picker
     initColorPicker(inputId, buttonId) {
         const input = document.getElementById(inputId);
@@ -735,7 +760,7 @@ const Dialogs = {
             }
         } else if (contentType === 'Object') {
             if (note.contentData) {
-                document.getElementById('edit-object-summary').textContent = `Object data stored`;
+                document.getElementById('edit-object-summary').textContent = this.getObjectSummary(note.contentData);
                 document.getElementById('edit-object-summary').dataset.objectData = note.contentData;
             }
         }
