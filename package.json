@@ -8,9 +8,9 @@
     "dev": "electron . --dev",
     "debug": "electron . --dev --remote-debugging-port=9222 --remote-allow-origins=*",
     "test": "node run-tests.js",
-    "build": "electron-builder --win",
-    "build:portable": "electron-builder --win portable",
-    "build:installer": "electron-builder --win nsis"
+    "build": "node scripts/run-electron-builder.js --win",
+    "build:portable": "node scripts/run-electron-builder.js --win portable",
+    "build:installer": "node scripts/run-electron-builder.js --win nsis"
   },
   "keywords": [
     "notes",
@@ -45,7 +45,8 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "resources/Notes.ico"
+      "icon": "resources/Notes.ico",
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
