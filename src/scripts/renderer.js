@@ -51,6 +51,7 @@ const App = {
 
     // Initialize application
     async init() {
+        this.setupRuntimeLogging();
         this.panelContainer = document.getElementById('panel-container');
         this.statusLabel = document.getElementById('status-label');
         this.selectionRect = document.getElementById('selection-rect');
@@ -109,6 +110,32 @@ const App = {
         }
         
         this.showStatus('Ready');
+        this.log('Info', 'Renderer initialized');
+    },
+
+    // Forward renderer runtime errors to main-process logger
+    setupRuntimeLogging() {
+        window.addEventListener('error', (event) => {
+            this.log('Error', event.message || 'Unhandled renderer error', {
+                file: event.filename || '',
+                line: event.lineno || 0,
+                column: event.colno || 0
+            });
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            const reason = event.reason && event.reason.message ? event.reason.message : String(event.reason || 'Unknown rejection');
+            this.log('Error', 'Unhandled promise rejection', { reason });
+        });
+    },
+
+    async log(level, message, details = null) {
+        if (!window.electronAPI || !window.electronAPI.logMessage) return;
+        try {
+            await window.electronAPI.logMessage(level, message, details);
+        } catch (_) {
+            // Avoid recursive logging failures in renderer.
+        }
     },
 
     // Migrate data from .NET format

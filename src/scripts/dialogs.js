@@ -814,6 +814,7 @@ const Dialogs = {
         document.getElementById('setting-double-click-edit').checked = config.general.doubleClickToEdit;
         document.getElementById('setting-single-click-copy').checked = config.general.singleClickToCopy;
         document.getElementById('setting-enable-animations').checked = config.general.enableAnimations;
+        document.getElementById('setting-log-level').value = config.general.logLevel || 'Info';
         document.getElementById('setting-gpu-mode').value = config.general.gpuMode || 'auto';
     },
 
@@ -1045,6 +1046,7 @@ const Dialogs = {
         config.general.doubleClickToEdit = document.getElementById('setting-double-click-edit').checked;
         config.general.singleClickToCopy = document.getElementById('setting-single-click-copy').checked;
         config.general.enableAnimations = document.getElementById('setting-enable-animations').checked;
+        config.general.logLevel = document.getElementById('setting-log-level').value;
         
         const previousGpuMode = config.general.gpuMode || 'auto';
         config.general.gpuMode = document.getElementById('setting-gpu-mode').value;

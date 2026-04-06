@@ -50,7 +50,7 @@ class SimpleStore {
                 this.save();
             }
         } catch (e) {
-            console.error('Failed to load store:', e);
+            logError('Failed to load store', { error: e.message });
             this.data = JSON.parse(JSON.stringify(this.defaults));
         }
     }
@@ -75,7 +75,7 @@ class SimpleStore {
             }
             fs.writeFileSync(this.filePath, JSON.stringify(this.data, null, 2), 'utf8');
         } catch (e) {
-            console.error('Failed to save store:', e);
+            logError('Failed to save store', { error: e.message });
         }
     }
 
@@ -141,6 +141,76 @@ let isQuitting = false;
 const userDataPath = app.getPath('userData');
 const backupPath = path.join(userDataPath, 'Backups');
 const logPath = path.join(userDataPath, 'Logs');
+const LOG_LEVELS = {
+    None: 0,
+    Error: 1,
+    Warning: 2,
+    Info: 3,
+    Debug: 4
+};
+
+function normalizeLogLevel(level) {
+    if (!level) return 'Info';
+    const normalized = String(level).trim();
+    if (Object.prototype.hasOwnProperty.call(LOG_LEVELS, normalized)) {
+        return normalized;
+    }
+    return 'Info';
+}
+
+function getCurrentLogLevel() {
+    try {
+        return normalizeLogLevel(store.get('config.general.logLevel'));
+    } catch (_) {
+        return 'Info';
+    }
+}
+
+function shouldLog(level) {
+    const current = LOG_LEVELS[getCurrentLogLevel()] ?? LOG_LEVELS.Info;
+    const requested = LOG_LEVELS[normalizeLogLevel(level)] ?? LOG_LEVELS.Info;
+    return requested <= current;
+}
+
+function getLogFilePath() {
+    const datePart = new Date().toISOString().slice(0, 10);
+    return path.join(logPath, `notes-${datePart}.log`);
+}
+
+function serializeLogDetails(details) {
+    if (details === undefined || details === null) return '';
+    if (typeof details === 'string') return details;
+    try {
+        return JSON.stringify(details);
+    } catch (_) {
+        return String(details);
+    }
+}
+
+function writeLog(level, message, details = null) {
+    const normalizedLevel = normalizeLogLevel(level);
+    if (!shouldLog(normalizedLevel)) return;
+
+    try {
+        if (!fs.existsSync(logPath)) {
+            fs.mkdirSync(logPath, { recursive: true });
+        }
+
+        const timestamp = new Date().toISOString();
+        const detailsText = serializeLogDetails(details);
+        const line = detailsText
+            ? `[${timestamp}] [${normalizedLevel}] ${message} | ${detailsText}`
+            : `[${timestamp}] [${normalizedLevel}] ${message}`;
+        fs.appendFileSync(getLogFilePath(), `${line}\n`, 'utf8');
+    } catch (_) {
+        // Never throw from logger.
+    }
+}
+
+function logError(message, details = null) { writeLog('Error', message, details); }
+function logWarning(message, details = null) { writeLog('Warning', message, details); }
+function logInfo(message, details = null) { writeLog('Info', message, details); }
+function logDebug(message, details = null) { writeLog('Debug', message, details); }
 
 // Initialize store and directories after app is ready
 function initializePaths() {
@@ -152,6 +222,7 @@ function initializePaths() {
 function createWindow() {
     const config = store.get('config');
     const windowConfig = config.window;
+    logInfo('Creating main window');
 
     const windowOptions = {
         width: windowConfig.rememberSize ? (windowConfig.width || 800) : 800,
@@ -188,6 +259,7 @@ function createWindow() {
         if (!config.general.startMinimized) {
             mainWindow.show();
         }
+        logInfo('Main window ready');
         // Open DevTools for debugging (remove in production)
         if (process.argv.includes('--dev')) {
             mainWindow.webContents.openDevTools();
@@ -378,7 +450,7 @@ function registerGlobalHotkey() {
             }
         });
     } catch (e) {
-        console.error('Failed to register hotkey:', e);
+        logError('Failed to register hotkey', { error: e.message });
     }
 }
 
@@ -395,7 +467,7 @@ function applyStartWithWindowsSetting(enabled) {
             path: process.execPath
         });
     } catch (e) {
-        console.error('Failed to apply startup setting:', e);
+        logError('Failed to apply startup setting', { error: e.message });
     }
 }
 
@@ -442,6 +514,7 @@ const BACKUP_INTERVAL_MS = 5 * 60 * 1000; // At most one backup every 5 minutes
 
 ipcMain.handle('save-data', (event, data) => {
     store.set('jsonData', data);
+    logDebug('Data saved');
     // Throttle backups to avoid creating one every auto-save cycle
     const now = Date.now();
     if (now - lastBackupTime >= BACKUP_INTERVAL_MS) {
@@ -453,6 +526,10 @@ ipcMain.handle('save-data', (event, data) => {
 
 ipcMain.handle('save-config', (event, config) => {
     store.set('config', config);
+    logInfo('Configuration saved', {
+        logLevel: config.general.logLevel,
+        startWithWindows: !!config.general.startWithWindows
+    });
     
     // Update tray
     if (config.general.showTrayIcon && !tray) {
@@ -471,6 +548,13 @@ ipcMain.handle('save-config', (event, config) => {
     // Update startup registration
     applyStartWithWindowsSetting(config.general.startWithWindows);
     
+    return true;
+});
+
+ipcMain.handle('log-message', (event, level, message, details) => {
+    const safeMessage = typeof message === 'string' ? message.slice(0, 2000) : 'Renderer log';
+    const safeDetails = details && typeof details === 'object' ? details : { details: details ?? null };
+    writeLog(level, `[renderer] ${safeMessage}`, safeDetails);
     return true;
 });
 
@@ -589,7 +673,7 @@ function createBackup(data) {
             fs.unlinkSync(path.join(backupPath, old));
         }
     } catch (e) {
-        console.error('Backup failed:', e);
+        logError('Backup failed', { error: e.message });
     }
 }
 
@@ -601,11 +685,16 @@ nativeTheme.on('updated', () => {
 
 app.whenReady().then(() => {
     initializePaths();
+    logInfo('Application starting', {
+        version: app.getVersion(),
+        platform: process.platform
+    });
     applyStartWithWindowsSetting(store.get('config.general.startWithWindows'));
     createWindow();
 });
 
 app.on('window-all-closed', () => {
+    logInfo('All windows closed');
     globalShortcut.unregisterAll();
     if (process.platform !== 'darwin') {
         app.quit();
@@ -619,5 +708,6 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', () => {
+    logInfo('Application quitting');
     isQuitting = true;
 });
