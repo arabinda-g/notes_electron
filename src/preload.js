@@ -31,6 +31,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     restartApp: () => ipcRenderer.invoke('restart-app'),
     getGpuInfo: () => ipcRenderer.invoke('get-gpu-info'),
     logMessage: (level, message, details) => ipcRenderer.invoke('log-message', level, message, details),
+    openLogFolder: () => ipcRenderer.invoke('open-log-folder'),
+    openCurrentLogFile: () => ipcRenderer.invoke('open-current-log-file'),
+    clearOldLogs: (days) => ipcRenderer.invoke('clear-old-logs', days),
     
     // Menu commands
     onMenuCommand: (callback) => ipcRenderer.on('menu-command', (event, command, data) => callback(command, data)),

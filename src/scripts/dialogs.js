@@ -289,6 +289,32 @@ const Dialogs = {
             window.electronAPI.openBackupFolder();
         });
 
+        // Log management actions
+        document.getElementById('setting-open-log-folder').addEventListener('click', async () => {
+            const ok = await window.electronAPI.openLogFolder();
+            App.showStatus(ok ? 'Log folder opened' : 'Failed to open log folder');
+        });
+
+        document.getElementById('setting-open-log-file').addEventListener('click', async () => {
+            const ok = await window.electronAPI.openCurrentLogFile();
+            App.showStatus(ok ? 'Current log opened' : 'Failed to open current log');
+        });
+
+        document.getElementById('setting-clear-old-logs').addEventListener('click', async () => {
+            const confirmed = await window.electronAPI.showConfirmDialog({
+                title: 'Clear Old Logs',
+                message: 'Delete log files older than 7 days?'
+            });
+            if (!confirmed) return;
+
+            const result = await window.electronAPI.clearOldLogs(7);
+            if (result && result.ok) {
+                App.showStatus(`Removed ${result.deletedCount} old log file(s)`);
+            } else {
+                App.showStatus('Failed to clear old logs');
+            }
+        });
+
         // Reset button
         document.getElementById('settings-reset-btn').addEventListener('click', async () => {
             const confirmed = await window.electronAPI.showConfirmDialog({

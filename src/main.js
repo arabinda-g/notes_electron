@@ -631,7 +631,9 @@ ipcMain.handle('restore-backup', async (event, filename) => {
 });
 
 ipcMain.handle('open-backup-folder', () => {
-    shell.openPath(backupPath);
+    return shell.openPath(backupPath)
+        .then((err) => err === '')
+        .catch(() => false);
 });
 
 ipcMain.handle('get-app-version', () => {
@@ -651,6 +653,67 @@ ipcMain.handle('get-gpu-info', () => {
     return {
         gpuFeatureStatus: app.getGPUFeatureStatus(),
     };
+});
+
+ipcMain.handle('open-log-folder', () => {
+    return shell.openPath(logPath)
+        .then((err) => err === '')
+        .catch(() => false);
+});
+
+ipcMain.handle('open-current-log-file', () => {
+    try {
+        if (!fs.existsSync(logPath)) {
+            fs.mkdirSync(logPath, { recursive: true });
+        }
+        const currentLogPath = getLogFilePath();
+        if (!fs.existsSync(currentLogPath)) {
+            fs.writeFileSync(currentLogPath, '', 'utf8');
+        }
+        return shell.openPath(currentLogPath)
+            .then((err) => err === '')
+            .catch(() => false);
+    } catch (e) {
+        logError('Failed to open current log file', { error: e.message });
+        return false;
+    }
+});
+
+ipcMain.handle('clear-old-logs', (event, days) => {
+    try {
+        const keepDays = Number.isFinite(Number(days)) ? Math.max(1, Number(days)) : 7;
+        if (!fs.existsSync(logPath)) {
+            return { ok: true, deletedCount: 0 };
+        }
+
+        const cutoff = Date.now() - (keepDays * 24 * 60 * 60 * 1000);
+        let deletedCount = 0;
+        const entries = fs.readdirSync(logPath);
+        for (const file of entries) {
+            if (!file.endsWith('.log')) continue;
+            const filePath = path.join(logPath, file);
+            let stats;
+            try {
+                stats = fs.statSync(filePath);
+            } catch (_) {
+                continue;
+            }
+            if (stats.mtimeMs < cutoff) {
+                try {
+                    fs.unlinkSync(filePath);
+                    deletedCount += 1;
+                } catch (_) {
+                    // Continue clearing other files.
+                }
+            }
+        }
+
+        logInfo('Cleared old log files', { keepDays, deletedCount });
+        return { ok: true, deletedCount };
+    } catch (e) {
+        logError('Failed to clear old logs', { error: e.message });
+        return { ok: false, deletedCount: 0 };
+    }
 });
 
 function createBackup(data) {
