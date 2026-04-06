@@ -315,6 +315,16 @@ const Dialogs = {
             }
         });
 
+        document.getElementById('setting-copy-config-path').addEventListener('click', async () => {
+            const configPath = document.getElementById('setting-config-path').value || '';
+            if (!configPath) {
+                App.showStatus('Config path not available');
+                return;
+            }
+            const ok = await window.electronAPI.writeClipboardText(configPath);
+            App.showStatus(ok ? 'Config path copied' : 'Failed to copy config path');
+        });
+
         // Reset button
         document.getElementById('settings-reset-btn').addEventListener('click', async () => {
             const confirmed = await window.electronAPI.showConfirmDialog({
@@ -782,10 +792,20 @@ const Dialogs = {
     },
 
     // Show Settings dialog
-    showSettingsDialog() {
+    async showSettingsDialog() {
         this.loadSettingsFromConfig();
+        await this.loadConfigPath();
         this.refreshBackupList();
         this.showDialog('settings-dialog');
+    },
+
+    async loadConfigPath() {
+        try {
+            const configPath = await window.electronAPI.getConfigPath();
+            document.getElementById('setting-config-path').value = configPath || '';
+        } catch (_) {
+            document.getElementById('setting-config-path').value = '';
+        }
     },
 
     // Load settings from config

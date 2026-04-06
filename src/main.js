@@ -644,6 +644,10 @@ ipcMain.handle('get-user-data-path', () => {
     return userDataPath;
 });
 
+ipcMain.handle('get-config-path', () => {
+    return path.join(userDataPath, 'notes-data.json');
+});
+
 ipcMain.handle('restart-app', () => {
     app.relaunch();
     app.exit(0);

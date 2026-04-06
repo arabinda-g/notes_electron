@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // App info
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),
     getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
+    getConfigPath: () => ipcRenderer.invoke('get-config-path'),
     restartApp: () => ipcRenderer.invoke('restart-app'),
     getGpuInfo: () => ipcRenderer.invoke('get-gpu-info'),
     logMessage: (level, message, details) => ipcRenderer.invoke('log-message', level, message, details),
