@@ -377,6 +377,29 @@
     font-weight: 600;
 }
 
+/* Button Style Picker Preview */
+.button-style-picker-preview {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.button-style-picker-preview .note-button {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    min-width: unset;
+    min-height: 28px;
+    padding: 4px 8px;
+    font-size: 10px;
+    z-index: auto;
+    cursor: default;
+    pointer-events: none;
+}
+
 /* Context Menus */
 .context-menu {
     position: fixed;

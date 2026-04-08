@@ -488,10 +488,7 @@
         <div class="context-menu-item" data-action="copy-lower">Copy in Lowercase</div>
         <div class="context-menu-item" data-action="copy-upper">Copy in Uppercase</div>
         <div class="context-menu-separator"></div>
-        <div class="context-menu-item context-menu-submenu" data-action="styles">
-            Styles
-            <div class="context-submenu" id="note-styles-submenu"></div>
-        </div>
+        <div class="context-menu-item" data-action="note-styles">Styles...</div>
         <div class="context-menu-separator"></div>
         <div class="context-menu-item" data-action="duplicate">Duplicate</div>
         <div class="context-menu-item" data-action="copy-style">Copy Style</div>
@@ -533,6 +530,17 @@
             <div class="dialog-content" id="style-picker-content"></div>
             <div class="dialog-buttons">
                 <button type="button" id="style-picker-close-btn" class="btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button Style Picker Dialog -->
+    <div id="button-style-picker-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog dialog-style-picker">
+            <div class="dialog-title">Choose Button Style</div>
+            <div class="dialog-content" id="button-style-picker-content"></div>
+            <div class="dialog-buttons">
+                <button type="button" id="button-style-picker-close-btn" class="btn">Close</button>
             </div>
         </div>
     </div>

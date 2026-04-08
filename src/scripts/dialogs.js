@@ -13,6 +13,7 @@ const Dialogs = {
         this.initAboutDialog();
         this.initFontDialog();
         this.initStylePickerDialog();
+        this.initButtonStylePickerDialog();
         this.initContextMenus();
 
         // Close dialogs on overlay click
@@ -494,21 +495,103 @@ const Dialogs = {
         return item;
     },
 
-    // Initialize Context Menus
-    initContextMenus() {
-        // Populate note styles submenu
-        const noteStylesSubmenu = document.getElementById('note-styles-submenu');
-        ButtonStyles.getAllStyleNames().forEach(name => {
-            const item = document.createElement('div');
-            item.className = 'context-menu-item';
-            item.textContent = name;
-            item.addEventListener('click', () => {
-                App.applyStyleToSelected(name);
-                this.hideContextMenus();
+    // Initialize Button Style Picker Dialog
+    initButtonStylePickerDialog() {
+        document.getElementById('button-style-picker-close-btn').addEventListener('click', () => {
+            this.closeDialog('button-style-picker-dialog');
+        });
+    },
+
+    // Show button style picker
+    showButtonStylePicker(noteId) {
+        const container = document.getElementById('button-style-picker-content');
+        container.innerHTML = '';
+
+        const currentStyle = App.data.units[noteId] ? App.data.units[noteId].buttonType : null;
+        const categories = ButtonStyles.getStyleCategories();
+
+        const noneHeader = document.createElement('div');
+        noneHeader.className = 'style-picker-category';
+        noneHeader.textContent = 'Default';
+        container.appendChild(noneHeader);
+
+        const noneGrid = document.createElement('div');
+        noneGrid.className = 'style-picker-grid';
+        noneGrid.appendChild(this._createButtonStylePickerItem('None', null, !currentStyle));
+        noneGrid.firstChild.addEventListener('click', () => {
+            const el = document.getElementById(`note-${noteId}`);
+            if (el) ButtonStyles.removeAllStyles(el);
+            if (App.data.units[noteId]) {
+                App.undoManager.saveState(App.data, 'Remove button style');
+                App.data.units[noteId].buttonType = '';
+                App.saveData();
+                App.showStatus('Removed button style');
+            }
+            this.closeDialog('button-style-picker-dialog');
+        });
+        container.appendChild(noneGrid);
+
+        categories.forEach(cat => {
+            const header = document.createElement('div');
+            header.className = 'style-picker-category';
+            header.textContent = cat.name;
+            container.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'style-picker-grid';
+
+            cat.styles.forEach(name => {
+                const isActive = currentStyle === name;
+                const item = this._createButtonStylePickerItem(name, name, isActive);
+                item.addEventListener('click', () => {
+                    App.applyStyleToSelected(name);
+                    this.closeDialog('button-style-picker-dialog');
+                });
+                grid.appendChild(item);
             });
-            noteStylesSubmenu.appendChild(item);
+
+            container.appendChild(grid);
         });
 
+        this.showDialog('button-style-picker-dialog');
+    },
+
+    _createButtonStylePickerItem(label, styleName, isActive) {
+        const item = document.createElement('div');
+        item.className = 'style-picker-item' + (isActive ? ' active' : '');
+
+        const preview = document.createElement('div');
+        preview.className = 'button-style-picker-preview';
+
+        const btn = document.createElement('button');
+        btn.className = 'note-button';
+        btn.textContent = label;
+        btn.tabIndex = -1;
+
+        if (styleName) {
+            const style = ButtonStyles.getStyle(styleName);
+            if (style) {
+                btn.classList.add(style.class);
+                if (style.bg) {
+                    btn.style.backgroundColor = style.bg;
+                    btn.style.color = style.text;
+                }
+            }
+        }
+
+        preview.appendChild(btn);
+        item.appendChild(preview);
+
+        const nameLabel = document.createElement('div');
+        nameLabel.className = 'style-picker-label';
+        nameLabel.textContent = label;
+        item.appendChild(nameLabel);
+
+        return item;
+    },
+
+    // Initialize Context Menus
+    initContextMenus() {
         // Note context menu items
         document.querySelectorAll('#note-context-menu > .context-menu-item:not(.context-menu-submenu)').forEach(item => {
             item.addEventListener('click', () => {
@@ -650,6 +733,9 @@ const Dialogs = {
                 break;
             case 'remove-from-group':
                 App.removeNoteFromGroup(noteId);
+                break;
+            case 'note-styles':
+                this.showButtonStylePicker(noteId);
                 break;
         }
     },
