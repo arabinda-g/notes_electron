@@ -30,7 +30,15 @@ const GroupStyles = {
         'Notepad': { class: 'style-notepad' },
         'Watercolor': { class: 'style-watercolor' },
         'Brutalist': { class: 'style-brutalist' },
-        'Polaroid': { class: 'style-polaroid' }
+        'Polaroid': { class: 'style-polaroid' },
+        'Folder Tab': { class: 'style-folder-tab' },
+        'Window': { class: 'style-window' },
+        'Caption': { class: 'style-caption' },
+        'Badge': { class: 'style-badge' },
+        'Sidebar': { class: 'style-sidebar' },
+        'Marquee': { class: 'style-marquee' },
+        'Stamp': { class: 'style-stamp' },
+        'Flag Tag': { class: 'style-flag-tag' }
     },
 
     // Animated styles
