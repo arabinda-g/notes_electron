@@ -543,6 +543,283 @@
     background-color: #FCE4EC;
 }
 
+/* 35. Blueprint */
+.group-box.style-blueprint {
+    background:
+        linear-gradient(rgba(100, 160, 230, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(100, 160, 230, 0.15) 1px, transparent 1px),
+        linear-gradient(180deg, #1A3A5C 0%, #1E4068 100%);
+    background-size: 20px 20px, 20px 20px, 100% 100%;
+    border: 2px solid #2E6EB0;
+    border-radius: 4px;
+    box-shadow: inset 0 0 40px rgba(0, 50, 120, 0.3);
+}
+
+.group-box.style-blueprint .group-box-title {
+    background-color: #1A3A5C;
+    color: #A0C8F0;
+    font-family: 'Courier New', monospace;
+}
+
+/* 36. Chalkboard */
+.group-box.style-chalkboard {
+    background: #2B4C3F;
+    border: 4px solid #5C3A1E;
+    border-radius: 2px;
+    box-shadow:
+        inset 0 0 60px rgba(0, 0, 0, 0.3),
+        4px 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.group-box.style-chalkboard .group-box-title {
+    color: rgba(255, 255, 255, 0.85);
+    font-family: 'Segoe Script', 'Comic Sans MS', cursive;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 37. Cyberpunk */
+.group-box.style-cyberpunk {
+    background:
+        linear-gradient(180deg, #0D0221 0%, #150530 100%) padding-box,
+        linear-gradient(135deg, #FF2A6D, #05D9E8, #FF2A6D) border-box;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    box-shadow:
+        0 0 15px rgba(255, 42, 109, 0.4),
+        0 0 30px rgba(5, 217, 232, 0.2);
+}
+
+.group-box.style-cyberpunk .group-box-title {
+    background-color: #0D0221;
+    color: #05D9E8;
+    text-shadow: 0 0 8px rgba(5, 217, 232, 0.6);
+}
+
+/* 38. Rose Gold */
+.group-box.style-rose-gold {
+    background: linear-gradient(135deg, #F5D0C5 0%, #E8B4B8 30%, #D4A0A0 60%, #F0C4C4 100%);
+    border: 2px solid #C08080;
+    border-radius: 14px;
+    box-shadow:
+        inset 0 2px 8px rgba(255, 255, 255, 0.4),
+        0 6px 20px rgba(180, 120, 120, 0.25);
+}
+
+.group-box.style-rose-gold .group-box-title {
+    background-color: #F5D0C5;
+    color: #6B3A3A;
+}
+
+/* 39. Frosted Glass */
+.group-box.style-frosted-glass {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.group-box.style-frosted-glass .group-box-title {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 40. Steampunk */
+.group-box.style-steampunk {
+    background: linear-gradient(180deg, #3D2B1F 0%, #5C3A1E 50%, #3D2B1F 100%);
+    border: 3px solid #B8860B;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 0 20px rgba(0, 0, 0, 0.4),
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(184, 134, 11, 0.3);
+}
+
+.group-box.style-steampunk .group-box-title {
+    background-color: #3D2B1F;
+    color: #D4A853;
+    font-family: Georgia, serif;
+}
+
+/* 41. Amber Terminal */
+.group-box.style-amber-terminal {
+    background: #1A1200;
+    border: 2px solid #FF8C00;
+    border-radius: 4px;
+    box-shadow:
+        0 0 15px rgba(255, 140, 0, 0.2),
+        inset 0 0 40px rgba(255, 140, 0, 0.05);
+}
+
+.group-box.style-amber-terminal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 140, 0, 0.03) 2px,
+        rgba(255, 140, 0, 0.03) 4px
+    );
+    pointer-events: none;
+}
+
+.group-box.style-amber-terminal .group-box-title {
+    color: #FFB000;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 8px rgba(255, 176, 0, 0.5);
+}
+
+/* 42. Vaporwave */
+.group-box.style-vaporwave {
+    background: linear-gradient(135deg, #E040FB 0%, #7C4DFF 50%, #00E5FF 100%);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(224, 64, 251, 0.3);
+    animation: vaporwave-shift 4s ease-in-out infinite;
+}
+
+.group-box.style-vaporwave .group-box-title {
+    background-color: #C030E0;
+    color: #FFFFFF;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+@keyframes vaporwave-shift {
+    0%, 100% { filter: hue-rotate(0deg); box-shadow: 0 0 25px rgba(224, 64, 251, 0.3); }
+    50% { filter: hue-rotate(20deg); box-shadow: 0 0 35px rgba(124, 77, 255, 0.4); }
+}
+
+/* 43. Toxic Glow */
+.group-box.style-toxic-glow {
+    background: linear-gradient(180deg, #0A1A0A 0%, #0D250D 100%);
+    border: 2px solid #39FF14;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+    animation: toxic-pulse 3s ease-in-out infinite;
+}
+
+.group-box.style-toxic-glow .group-box-title {
+    background-color: #0A1A0A;
+    color: #39FF14;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.6);
+}
+
+@keyframes toxic-pulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        border-color: #39FF14;
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(57, 255, 20, 0.5), 0 0 60px rgba(57, 255, 20, 0.2);
+        border-color: #7FFF00;
+    }
+}
+
+/* 44. Neon Pulse */
+.group-box.style-neon-pulse {
+    background: #0A0A14;
+    border: 2px solid #FF00FF;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+    animation: neon-color-cycle 6s linear infinite;
+}
+
+.group-box.style-neon-pulse .group-box-title {
+    color: #FF00FF;
+    text-shadow: 0 0 10px currentColor;
+    animation: neon-title-cycle 6s linear infinite;
+}
+
+@keyframes neon-color-cycle {
+    0%, 100% { border-color: #FF00FF; box-shadow: 0 0 15px rgba(255, 0, 255, 0.4); }
+    33% { border-color: #00FFFF; box-shadow: 0 0 15px rgba(0, 255, 255, 0.4); }
+    66% { border-color: #FFFF00; box-shadow: 0 0 15px rgba(255, 255, 0, 0.4); }
+}
+
+@keyframes neon-title-cycle {
+    0%, 100% { color: #FF00FF; }
+    33% { color: #00FFFF; }
+    66% { color: #FFFF00; }
+}
+
+/* 45. Galaxy Swirl */
+.group-box.style-galaxy {
+    background: #000011;
+    border: 1px solid #3A1A6E;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(100, 50, 200, 0.3);
+}
+
+@property --galaxy-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.group-box.style-galaxy::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: conic-gradient(from var(--galaxy-angle) at 50% 50%,
+        transparent 0deg,
+        rgba(100, 50, 200, 0.15) 60deg,
+        transparent 120deg,
+        rgba(50, 100, 200, 0.1) 180deg,
+        transparent 240deg,
+        rgba(200, 50, 150, 0.1) 300deg,
+        transparent 360deg);
+    animation: galaxy-spin 20s linear infinite;
+    pointer-events: none;
+}
+
+.group-box.style-galaxy .group-box-title {
+    background-color: #0A0A20;
+    color: #C8A0FF;
+}
+
+@keyframes galaxy-spin {
+    to { --galaxy-angle: 360deg; }
+}
+
+/* 46. Glitch */
+.group-box.style-glitch {
+    background: #0A0A0A;
+    border: 2px solid #FF0040;
+    border-radius: 4px;
+    animation: glitch-flicker 3s steps(1) infinite;
+}
+
+.group-box.style-glitch .group-box-title {
+    color: #FF0040;
+    font-family: 'Courier New', monospace;
+    animation: glitch-text 3s steps(1) infinite;
+}
+
+@keyframes glitch-flicker {
+    0%, 11%, 41%, 71%, 100% { box-shadow: 0 0 10px rgba(255, 0, 64, 0.3); }
+    10% { box-shadow: -3px 0 10px rgba(0, 255, 255, 0.4), 3px 0 10px rgba(255, 0, 64, 0.4); }
+    40% { box-shadow: 2px 0 12px rgba(255, 0, 64, 0.5), -2px 0 12px rgba(0, 255, 255, 0.5); }
+    70% { box-shadow: -4px 0 15px rgba(0, 255, 255, 0.5), 4px 0 15px rgba(255, 0, 64, 0.5); }
+}
+
+@keyframes glitch-text {
+    0%, 11%, 41%, 71%, 100% { text-shadow: 0 0 8px rgba(255, 0, 64, 0.5); }
+    10% { text-shadow: -2px 0 #0FF, 2px 0 #F00; }
+    40% { text-shadow: 2px 0 #0FF, -2px 0 #F00; }
+    70% { text-shadow: -3px 0 #0FF, 3px 0 #F00; }
+}
+
 /* Dark theme adjustments for groups */
 [data-theme="dark"] .group-box.style-card,
 [data-theme="dark"] .group-box.style-minimal,

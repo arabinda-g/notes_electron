@@ -17,7 +17,14 @@ const GroupStyles = {
         'Vintage Paper': { class: 'style-vintage-paper' },
         'Liquid Metal': { class: 'style-liquid-metal' },
         'Cosmic': { class: 'style-cosmic' },
-        'Rainbow Spectrum': { class: 'style-rainbow-spectrum' }
+        'Rainbow Spectrum': { class: 'style-rainbow-spectrum' },
+        'Blueprint': { class: 'style-blueprint' },
+        'Chalkboard': { class: 'style-chalkboard' },
+        'Cyberpunk': { class: 'style-cyberpunk' },
+        'Rose Gold': { class: 'style-rose-gold' },
+        'Frosted Glass': { class: 'style-frosted-glass' },
+        'Steampunk': { class: 'style-steampunk' },
+        'Amber Terminal': { class: 'style-amber-terminal' }
     },
 
     // Animated styles
@@ -40,7 +47,12 @@ const GroupStyles = {
         'Confetti Party': { class: 'style-confetti' },
         'Sunburst Rays': { class: 'style-sunburst' },
         'Cherry Blossom': { class: 'style-cherry-blossom' },
-        'Floating Hearts': { class: 'style-floating-hearts' }
+        'Floating Hearts': { class: 'style-floating-hearts' },
+        'Vaporwave': { class: 'style-vaporwave', animated: true },
+        'Toxic Glow': { class: 'style-toxic-glow', animated: true },
+        'Neon Pulse': { class: 'style-neon-pulse', animated: true },
+        'Galaxy Swirl': { class: 'style-galaxy', animated: true },
+        'Glitch': { class: 'style-glitch', animated: true }
     },
 
     // Get all style names
