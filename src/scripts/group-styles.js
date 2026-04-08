@@ -24,7 +24,13 @@ const GroupStyles = {
         'Rose Gold': { class: 'style-rose-gold' },
         'Frosted Glass': { class: 'style-frosted-glass' },
         'Steampunk': { class: 'style-steampunk' },
-        'Amber Terminal': { class: 'style-amber-terminal' }
+        'Amber Terminal': { class: 'style-amber-terminal' },
+        'Topographic': { class: 'style-topographic' },
+        'Carbon Fiber': { class: 'style-carbon-fiber' },
+        'Notepad': { class: 'style-notepad' },
+        'Watercolor': { class: 'style-watercolor' },
+        'Brutalist': { class: 'style-brutalist' },
+        'Polaroid': { class: 'style-polaroid' }
     },
 
     // Animated styles
@@ -52,7 +58,10 @@ const GroupStyles = {
         'Toxic Glow': { class: 'style-toxic-glow', animated: true },
         'Neon Pulse': { class: 'style-neon-pulse', animated: true },
         'Galaxy Swirl': { class: 'style-galaxy', animated: true },
-        'Glitch': { class: 'style-glitch', animated: true }
+        'Glitch': { class: 'style-glitch', animated: true },
+        'Deep Sea': { class: 'style-deep-sea', animated: true },
+        'Radar Sweep': { class: 'style-radar', animated: true },
+        'Breathing': { class: 'style-breathing', animated: true }
     },
 
     // Get all style names
