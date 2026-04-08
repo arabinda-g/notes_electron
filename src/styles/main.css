@@ -162,10 +162,11 @@ html, body {
     position: absolute;
     top: -10px;
     left: 12px;
-    padding: 0 6px;
+    padding: 1px 8px;
     font-size: 12px;
     font-weight: 600;
     background-color: inherit;
+    border-radius: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
