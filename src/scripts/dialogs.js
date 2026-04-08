@@ -12,6 +12,7 @@ const Dialogs = {
         this.initSettingsDialog();
         this.initAboutDialog();
         this.initFontDialog();
+        this.initStylePickerDialog();
         this.initContextMenus();
 
         // Close dialogs on overlay click
@@ -396,6 +397,103 @@ const Dialogs = {
         });
     },
 
+    // Initialize Style Picker Dialog
+    initStylePickerDialog() {
+        document.getElementById('style-picker-close-btn').addEventListener('click', () => {
+            this.closeDialog('style-picker-dialog');
+        });
+    },
+
+    // Show group style picker
+    showStylePicker(groupId) {
+        const container = document.getElementById('style-picker-content');
+        container.innerHTML = '';
+
+        const currentStyle = App.data.groups[groupId] ? App.data.groups[groupId].groupBoxType : null;
+        const categories = GroupStyles.getStyleCategories();
+
+        const noneItem = this._createStylePickerItem('None', null, !currentStyle);
+        noneItem.addEventListener('click', () => {
+            const el = document.getElementById(`group-${groupId}`);
+            if (el) GroupStyles.removeAllStyles(el);
+            if (App.data.groups[groupId]) {
+                App.undoManager.saveState(App.data, 'Remove group style');
+                App.data.groups[groupId].groupBoxType = '';
+                App.saveData();
+                App.showStatus('Removed group style');
+            }
+            this.closeDialog('style-picker-dialog');
+        });
+
+        const noneHeader = document.createElement('div');
+        noneHeader.className = 'style-picker-category';
+        noneHeader.textContent = 'Default';
+        container.appendChild(noneHeader);
+
+        const noneGrid = document.createElement('div');
+        noneGrid.className = 'style-picker-grid';
+        noneGrid.appendChild(noneItem);
+        container.appendChild(noneGrid);
+
+        categories.forEach(cat => {
+            const header = document.createElement('div');
+            header.className = 'style-picker-category';
+            header.textContent = cat.name;
+            container.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'style-picker-grid';
+
+            cat.styles.forEach(name => {
+                const isActive = currentStyle === name;
+                const item = this._createStylePickerItem(name, name, isActive);
+                item.addEventListener('click', () => {
+                    App.applyGroupStyle(name);
+                    this.closeDialog('style-picker-dialog');
+                });
+                grid.appendChild(item);
+            });
+
+            container.appendChild(grid);
+        });
+
+        this.showDialog('style-picker-dialog');
+    },
+
+    _createStylePickerItem(label, styleName, isActive) {
+        const item = document.createElement('div');
+        item.className = 'style-picker-item' + (isActive ? ' active' : '');
+
+        const preview = document.createElement('div');
+        preview.className = 'style-picker-preview';
+
+        const box = document.createElement('div');
+        box.className = 'group-box';
+        if (styleName) {
+            const styleClass = GroupStyles.getStyleClass(styleName);
+            if (styleClass) box.classList.add(styleClass);
+        }
+
+        const title = document.createElement('div');
+        title.className = 'group-box-title';
+        title.textContent = label;
+        box.appendChild(title);
+
+        const content = document.createElement('div');
+        content.className = 'group-box-content';
+        box.appendChild(content);
+
+        preview.appendChild(box);
+        item.appendChild(preview);
+
+        const nameLabel = document.createElement('div');
+        nameLabel.className = 'style-picker-label';
+        nameLabel.textContent = label;
+        item.appendChild(nameLabel);
+
+        return item;
+    },
+
     // Initialize Context Menus
     initContextMenus() {
         // Populate note styles submenu
@@ -409,19 +507,6 @@ const Dialogs = {
                 this.hideContextMenus();
             });
             noteStylesSubmenu.appendChild(item);
-        });
-
-        // Populate group styles submenu
-        const groupStylesSubmenu = document.getElementById('group-styles-submenu');
-        GroupStyles.getAllStyleNames().forEach(name => {
-            const item = document.createElement('div');
-            item.className = 'context-menu-item';
-            item.textContent = name;
-            item.addEventListener('click', () => {
-                App.applyGroupStyle(name);
-                this.hideContextMenus();
-            });
-            groupStylesSubmenu.appendChild(item);
         });
 
         // Note context menu items
@@ -603,6 +688,9 @@ const Dialogs = {
                 break;
             case 'auto-resize':
                 App.autoResizeGroup(groupId);
+                break;
+            case 'group-styles':
+                this.showStylePicker(groupId);
                 break;
         }
     },

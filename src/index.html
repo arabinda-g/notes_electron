@@ -523,9 +523,17 @@
         </div>
         <div class="context-menu-item" data-action="auto-resize">Auto Resize</div>
         <div class="context-menu-separator"></div>
-        <div class="context-menu-item context-menu-submenu" data-action="group-styles">
-            Styles
-            <div class="context-submenu" id="group-styles-submenu"></div>
+        <div class="context-menu-item" data-action="group-styles">Styles...</div>
+    </div>
+
+    <!-- Group Style Picker Dialog -->
+    <div id="style-picker-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog dialog-style-picker">
+            <div class="dialog-title">Choose Group Style</div>
+            <div class="dialog-content" id="style-picker-content"></div>
+            <div class="dialog-buttons">
+                <button type="button" id="style-picker-close-btn" class="btn">Close</button>
+            </div>
         </div>
     </div>
 
