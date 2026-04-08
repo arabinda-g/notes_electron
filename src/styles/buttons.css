@@ -3,6 +3,7 @@
 /* Base Button */
 .note-button {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease, transform 0.1s ease;
 }
 
 .note-button:hover {
@@ -52,7 +53,7 @@
     border: none;
     border-radius: 4px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
-    transition: all 0.2s ease;
+    color: #FFFFFF;
     overflow: hidden;
 }
 
@@ -93,12 +94,12 @@
     background: #E0E5EC;
     border: none;
     border-radius: 15px;
-    box-shadow: 9px 9px 16px #a3b1c6, -9px -9px 16px #ffffff;
+    box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.7);
     color: #666;
 }
 
 .note-button.style-neumorphism:active {
-    box-shadow: inset 5px 5px 10px #a3b1c6, inset -5px -5px 10px #ffffff;
+    box-shadow: inset 5px 5px 10px rgba(163, 177, 198, 0.6), inset -5px -5px 10px rgba(255, 255, 255, 0.7);
 }
 
 /* 6. Retro 3D Button */
@@ -128,6 +129,7 @@
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
     color: #333;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .note-button.style-premium-card::before {
@@ -155,12 +157,8 @@
 }
 
 .note-button.style-outline:hover {
-    background: currentColor;
+    background: rgba(128, 128, 128, 0.12);
     box-shadow: none;
-}
-
-.note-button.style-outline:hover .note-button-text {
-    filter: invert(1);
 }
 
 /* 9. Pill Button */
@@ -343,6 +341,7 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    color: #333;
 }
 
 .note-button.style-golden-premium {
