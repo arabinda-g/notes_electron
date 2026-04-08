@@ -451,6 +451,8 @@ function createMenu() {
         {
             label: 'View',
             submenu: [
+                { label: 'Toggle Developer Tools', accelerator: 'CmdOrCtrl+Shift+I', click: () => mainWindow.webContents.toggleDevTools() },
+                { type: 'separator' },
                 {
                     label: 'Arrange',
                     submenu: [
