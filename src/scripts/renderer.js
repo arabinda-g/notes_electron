@@ -79,6 +79,9 @@ const App = {
         // Apply animations setting
         this.applyAnimationsSetting();
         
+        // Apply saved background style
+        this.applyBackgroundStyle();
+        
         // Render notes and groups
         this.render();
         
@@ -297,10 +300,11 @@ const App = {
         // Keyboard events
         document.addEventListener('keydown', (e) => this.onKeyDown(e));
         
-        // Prevent context menu on panel
+        // Panel context menu
         this.panelContainer.addEventListener('contextmenu', (e) => {
             if (e.target === this.panelContainer) {
                 e.preventDefault();
+                Dialogs.showPanelContextMenu(e.clientX, e.clientY);
             }
         });
 
@@ -1281,7 +1285,7 @@ const App = {
                 doubleClickToEdit: true, singleClickToCopy: true,
                 enableAnimations: true, theme: 'SystemDefault', logLevel: 'None',
                 autofocus: false, optimizeForLargeFiles: false,
-                gpuMode: 'auto'
+                gpuMode: 'auto', backgroundStyle: ''
             }
         };
         this.autofocus = false;
@@ -1370,6 +1374,34 @@ const App = {
             document.documentElement.classList.remove('no-animations');
         } else {
             document.documentElement.classList.add('no-animations');
+        }
+    },
+
+    // Apply background style to panel container
+    async applyBackgroundStyle(styleName) {
+        if (styleName !== undefined) {
+            this.config.general.backgroundStyle = styleName;
+            await window.electronAPI.saveConfig(this.config);
+        }
+
+        const bg = this.config.general.backgroundStyle || '';
+        BgStyles.removeAllStyles(this.panelContainer);
+        BgStyles.removeCustomImage(this.panelContainer);
+
+        if (!bg) {
+            this.showStatus('Background style removed');
+            return;
+        }
+
+        if (bg.startsWith('custom:')) {
+            const filename = bg.substring(7);
+            const userDataPath = await window.electronAPI.getUserDataPath();
+            const imagePath = userDataPath + '/backgrounds/' + filename;
+            BgStyles.applyCustomImage(this.panelContainer, imagePath);
+            this.showStatus('Custom background applied');
+        } else {
+            BgStyles.applyStyle(this.panelContainer, bg);
+            this.showStatus(`Applied "${bg}" background`);
         }
     },
 

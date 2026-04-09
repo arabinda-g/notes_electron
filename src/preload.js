@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     
     // Dialogs
     showConfirmDialog: (options) => ipcRenderer.invoke('show-confirm-dialog', options),
+    selectBackgroundImage: () => ipcRenderer.invoke('select-background-image'),
     
     // Backup
     getBackupList: () => ipcRenderer.invoke('get-backup-list'),

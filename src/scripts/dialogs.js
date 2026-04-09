@@ -14,6 +14,7 @@ const Dialogs = {
         this.initFontDialog();
         this.initStylePickerDialog();
         this.initButtonStylePickerDialog();
+        this.initBgStylePickerDialog();
         this.initContextMenus();
 
         // Close dialogs on overlay click
@@ -590,6 +591,106 @@ const Dialogs = {
         return item;
     },
 
+    // Initialize Background Style Picker Dialog
+    initBgStylePickerDialog() {
+        document.getElementById('bg-style-picker-close-btn').addEventListener('click', () => {
+            this.closeDialog('bg-style-picker-dialog');
+        });
+
+        document.getElementById('bg-style-custom-btn').addEventListener('click', async () => {
+            const result = await window.electronAPI.selectBackgroundImage();
+            if (result) {
+                App.applyBackgroundStyle('custom:' + result);
+                this.closeDialog('bg-style-picker-dialog');
+            }
+        });
+    },
+
+    showBgStylePicker() {
+        const container = document.getElementById('bg-style-picker-content');
+        container.innerHTML = '';
+
+        const currentStyle = App.config.general.backgroundStyle || '';
+        const categories = BgStyles.getStyleCategories();
+
+        const noneHeader = document.createElement('div');
+        noneHeader.className = 'style-picker-category';
+        noneHeader.textContent = 'Default';
+        container.appendChild(noneHeader);
+
+        const noneGrid = document.createElement('div');
+        noneGrid.className = 'style-picker-grid';
+        const noneItem = this._createBgStylePickerItem('None', null, !currentStyle);
+        noneItem.addEventListener('click', () => {
+            App.applyBackgroundStyle('');
+            this.closeDialog('bg-style-picker-dialog');
+        });
+        noneGrid.appendChild(noneItem);
+        container.appendChild(noneGrid);
+
+        categories.forEach(cat => {
+            const header = document.createElement('div');
+            header.className = 'style-picker-category';
+            header.textContent = cat.name;
+            container.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'style-picker-grid';
+
+            cat.styles.forEach(name => {
+                const isActive = currentStyle === name;
+                const item = this._createBgStylePickerItem(name, name, isActive);
+                item.addEventListener('click', () => {
+                    App.applyBackgroundStyle(name);
+                    this.closeDialog('bg-style-picker-dialog');
+                });
+                grid.appendChild(item);
+            });
+
+            container.appendChild(grid);
+        });
+
+        if (currentStyle && currentStyle.startsWith('custom:')) {
+            const customHeader = document.createElement('div');
+            customHeader.className = 'style-picker-category';
+            customHeader.textContent = 'Current Custom Image';
+            container.appendChild(customHeader);
+
+            const customGrid = document.createElement('div');
+            customGrid.className = 'style-picker-grid';
+            const customItem = this._createBgStylePickerItem('Custom Image', null, true);
+            customGrid.appendChild(customItem);
+            container.appendChild(customGrid);
+        }
+
+        this.showDialog('bg-style-picker-dialog');
+    },
+
+    _createBgStylePickerItem(label, styleName, isActive) {
+        const item = document.createElement('div');
+        item.className = 'style-picker-item' + (isActive ? ' active' : '');
+
+        const preview = document.createElement('div');
+        preview.className = 'bg-style-picker-preview';
+
+        const box = document.createElement('div');
+        if (styleName) {
+            const styleClass = BgStyles.getStyleClass(styleName);
+            if (styleClass) box.classList.add(styleClass);
+        } else {
+            box.style.backgroundColor = 'var(--bg-secondary)';
+        }
+        preview.appendChild(box);
+        item.appendChild(preview);
+
+        const nameLabel = document.createElement('div');
+        nameLabel.className = 'style-picker-label';
+        nameLabel.textContent = label;
+        item.appendChild(nameLabel);
+
+        return item;
+    },
+
     // Initialize Context Menus
     initContextMenus() {
         // Note context menu items
@@ -606,6 +707,15 @@ const Dialogs = {
             item.addEventListener('click', () => {
                 const action = item.dataset.action;
                 this.handleGroupContextAction(action);
+                this.hideContextMenus();
+            });
+        });
+
+        // Panel context menu items
+        document.querySelectorAll('#panel-context-menu > .context-menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const action = item.dataset.action;
+                this.handlePanelContextAction(action);
                 this.hideContextMenus();
             });
         });
@@ -677,6 +787,33 @@ const Dialogs = {
         document.querySelectorAll('.context-menu').forEach(menu => {
             menu.style.display = 'none';
         });
+    },
+
+    // Show panel context menu
+    showPanelContextMenu(x, y) {
+        this.hideContextMenus();
+
+        const menu = document.getElementById('panel-context-menu');
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+        menu.style.display = 'block';
+
+        const rect = menu.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            menu.style.left = (x - rect.width) + 'px';
+        }
+        if (rect.bottom > window.innerHeight) {
+            menu.style.top = (y - rect.height) + 'px';
+        }
+    },
+
+    // Handle panel context menu action
+    handlePanelContextAction(action) {
+        switch (action) {
+            case 'panel-styles':
+                this.showBgStylePicker();
+                break;
+        }
     },
 
     // Update groups submenu

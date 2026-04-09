@@ -128,7 +128,7 @@ const store = new SimpleStore({
                 doubleClickToEdit: true, singleClickToCopy: true,
                 autofocus: false, optimizeForLargeFiles: false,
                 enableAnimations: true, theme: 'SystemDefault', logLevel: 'None',
-                gpuMode: 'auto'
+                gpuMode: 'auto', backgroundStyle: ''
             }
         }
     }
@@ -783,6 +783,32 @@ ipcMain.handle('show-confirm-dialog', async (event, options) => {
         message: options.message
     });
     return result.response === 0;
+});
+
+ipcMain.handle('select-background-image', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Select Background Image',
+        filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'] }],
+        properties: ['openFile']
+    });
+
+    if (result.canceled || result.filePaths.length === 0) return null;
+
+    try {
+        const srcPath = result.filePaths[0];
+        const bgDir = path.join(userDataPath, 'backgrounds');
+        if (!fs.existsSync(bgDir)) {
+            fs.mkdirSync(bgDir, { recursive: true });
+        }
+        const ext = path.extname(srcPath);
+        const filename = 'bg_' + Date.now() + ext;
+        const destPath = path.join(bgDir, filename);
+        fs.copyFileSync(srcPath, destPath);
+        return filename;
+    } catch (e) {
+        logError('Failed to copy background image', { error: e.message });
+        return null;
+    }
 });
 
 ipcMain.handle('show-color-dialog', async (event, currentColor) => {

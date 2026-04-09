@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data: file:">
     <title>Notes</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/buttons.css">
     <link rel="stylesheet" href="styles/groups.css">
     <link rel="stylesheet" href="styles/dialogs.css">
+    <link rel="stylesheet" href="styles/backgrounds.css">
 </head>
 <body>
     <!-- Main Container -->
@@ -523,6 +524,22 @@
         <div class="context-menu-item" data-action="group-styles">Styles...</div>
     </div>
 
+    <div id="panel-context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-item" data-action="panel-styles">Styles...</div>
+    </div>
+
+    <!-- Background Style Picker Dialog -->
+    <div id="bg-style-picker-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog dialog-style-picker">
+            <div class="dialog-title">Choose Background Style</div>
+            <div class="dialog-content" id="bg-style-picker-content"></div>
+            <div class="dialog-buttons">
+                <button type="button" id="bg-style-custom-btn" class="btn btn-secondary">Custom Image...</button>
+                <button type="button" id="bg-style-picker-close-btn" class="btn">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Group Style Picker Dialog -->
     <div id="style-picker-dialog" class="dialog-overlay" style="display: none;">
         <div class="dialog dialog-style-picker">
@@ -551,6 +568,7 @@
     <script src="scripts/utils.js"></script>
     <script src="scripts/button-styles.js"></script>
     <script src="scripts/group-styles.js"></script>
+    <script src="scripts/bg-styles.js"></script>
     <script src="scripts/undo-redo.js"></script>
     <script src="scripts/dialogs.js"></script>
     <script src="scripts/renderer.js"></script>
