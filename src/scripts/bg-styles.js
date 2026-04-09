@@ -50,7 +50,17 @@ const BgStyles = {
         'Starfield': { class: 'bg-starfield', animated: true },
         'Deep Ocean': { class: 'bg-deep-ocean', animated: true },
         'Cosmic Drift': { class: 'bg-cosmic-drift', animated: true },
-        'Matrix Rain': { class: 'bg-matrix-rain', animated: true }
+        'Matrix Rain': { class: 'bg-matrix-rain', animated: true },
+        'Solar Flare': { class: 'bg-solar-flare', animated: true },
+        'Nebula Storm': { class: 'bg-nebula-storm', animated: true },
+        'Electric Grid': { class: 'bg-electric-grid', animated: true },
+        'Lava Lamp': { class: 'bg-lava-lamp', animated: true },
+        'Wormhole': { class: 'bg-wormhole', animated: true },
+        'Fireflies': { class: 'bg-fireflies', animated: true },
+        'Thunderstorm': { class: 'bg-thunderstorm', animated: true },
+        'Holographic Waves': { class: 'bg-holographic', animated: true },
+        'Supernova': { class: 'bg-supernova', animated: true },
+        'Ocean Abyss': { class: 'bg-ocean-abyss', animated: true }
     },
 
     // Modern backgrounds
