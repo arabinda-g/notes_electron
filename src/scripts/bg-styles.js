@@ -60,7 +60,8 @@ const BgStyles = {
         'Thunderstorm': { class: 'bg-thunderstorm', animated: true },
         'Holographic Waves': { class: 'bg-holographic', animated: true },
         'Supernova': { class: 'bg-supernova', animated: true },
-        'Ocean Abyss': { class: 'bg-ocean-abyss', animated: true }
+        'Ocean Abyss': { class: 'bg-ocean-abyss', animated: true },
+        'Isometric City': { class: 'bg-isometric-city', animated: true }
     },
 
     // Modern backgrounds
