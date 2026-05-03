@@ -98,10 +98,16 @@ const ButtonStyles = {
         if (style) {
             button.classList.add(style.class);
             
-            // Apply colors if this is a color style and we're not preserving
-            if (!preserveColors && style.bg) {
-                button.style.setProperty('--btn-bg', style.bg);
-                button.style.setProperty('--btn-text', style.text);
+            // For color-based presets, set inline colors so they persist immediately.
+            // For non-color presets, clear inline colors so CSS class colors can win.
+            if (!preserveColors) {
+                if (style.bg) {
+                    button.style.backgroundColor = style.bg;
+                    button.style.color = style.text;
+                } else {
+                    button.style.backgroundColor = '';
+                    button.style.color = '';
+                }
             }
         }
     },

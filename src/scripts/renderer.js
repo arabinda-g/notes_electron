@@ -598,10 +598,6 @@ const App = {
         button.style.left = note.x + 'px';
         button.style.top = note.y + 'px';
         
-        // Colors
-        button.style.backgroundColor = note.backgroundColor || '#6495ED';
-        button.style.color = note.textColor || '#FFFFFF';
-        
         // Font
         button.style.fontFamily = `"${note.fontFamily || 'Segoe UI'}", sans-serif`;
         button.style.fontSize = (note.fontSize || 12) + 'px';
@@ -609,17 +605,32 @@ const App = {
         if (note.fontItalic) button.style.fontStyle = 'italic';
         
         // Apply button type style
+        let mappedClass = '';
+        let resolvedStyle = null;
         if (note.buttonType) {
             // Try .NET button type mapping first, then ButtonStyles lookup
-            const mappedClass = Utils.mapButtonType(note.buttonType);
+            mappedClass = Utils.mapButtonType(note.buttonType);
+            resolvedStyle = ButtonStyles.getStyle(note.buttonType);
             if (mappedClass) {
                 button.classList.add('style-' + mappedClass);
             } else {
-                const styleClass = ButtonStyles.getStyleClass(note.buttonType);
+                const styleClass = resolvedStyle ? resolvedStyle.class : '';
                 if (styleClass) {
                     button.classList.add(styleClass);
                 }
             }
+        }
+
+        // Keep note colors for default/color styles.
+        // For non-color styles, remove inline colors so style classes fully apply.
+        const hasButtonStyle = !!(mappedClass || (resolvedStyle && resolvedStyle.class));
+        const styleDefinesColors = !!(resolvedStyle && resolvedStyle.bg);
+        if (!hasButtonStyle || styleDefinesColors) {
+            button.style.backgroundColor = note.backgroundColor || '#6495ED';
+            button.style.color = note.textColor || '#FFFFFF';
+        } else {
+            button.style.backgroundColor = '';
+            button.style.color = '';
         }
         
         // Events

@@ -521,7 +521,14 @@ const Dialogs = {
         noneGrid.appendChild(this._createButtonStylePickerItem('None', null, !currentStyle));
         noneGrid.firstChild.addEventListener('click', () => {
             const el = document.getElementById(`note-${noteId}`);
-            if (el) ButtonStyles.removeAllStyles(el);
+            if (el) {
+                ButtonStyles.removeAllStyles(el);
+                const note = App.data.units[noteId];
+                if (note) {
+                    el.style.backgroundColor = note.backgroundColor || '#6495ED';
+                    el.style.color = note.textColor || '#FFFFFF';
+                }
+            }
             if (App.data.units[noteId]) {
                 App.undoManager.saveState(App.data, 'Remove button style');
                 App.data.units[noteId].buttonType = '';
