@@ -29,6 +29,14 @@
       "detail": "Build NSIS installer only"
     },
     {
+      "label": "Build: macOS",
+      "type": "npm",
+      "script": "build:mac",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Build DMG and ZIP packages for macOS"
+    },
+    {
       "label": "Run Tests",
       "type": "npm",
       "script": "test",

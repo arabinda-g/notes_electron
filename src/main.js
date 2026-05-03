@@ -294,6 +294,58 @@ function initializePaths() {
     store.init(userDataPath);
 }
 
+function loadNativeImageFromCandidates(candidatePaths, purpose) {
+    for (const iconPath of candidatePaths) {
+        if (!iconPath || !fs.existsSync(iconPath)) continue;
+        try {
+            const image = nativeImage.createFromPath(iconPath);
+            if (!image.isEmpty()) {
+                return image;
+            }
+            logWarning(`${purpose} icon file exists but could not be decoded`, { iconPath });
+        } catch (e) {
+            logWarning(`Failed to load ${purpose} icon candidate`, { iconPath, error: e.message });
+        }
+    }
+    return null;
+}
+
+function getAppIconCandidates() {
+    return [
+        process.platform === 'darwin' ? path.join(__dirname, '../resources/Notes.icns') : null,
+        path.join(__dirname, '../resources/Notes.png'),
+        path.join(__dirname, '../resources/Notes.ico')
+    ].filter(Boolean);
+}
+
+function getDockIconCandidates() {
+    return [
+        process.platform === 'darwin' ? path.join(__dirname, '../resources/NotesDock.png') : null,
+        ...getAppIconCandidates()
+    ].filter(Boolean);
+}
+
+function applyDockIcon() {
+    if (process.platform !== 'darwin' || !app.dock) return;
+
+    const dockIcon = loadNativeImageFromCandidates(getDockIconCandidates(), 'Dock');
+    if (dockIcon) {
+        app.dock.setIcon(dockIcon);
+    } else {
+        logWarning('No valid application icon found for macOS dock');
+    }
+}
+
+function getWindowIconPath() {
+    const candidates = [
+        process.platform === 'darwin' ? path.join(__dirname, '../resources/Notes.icns') : null,
+        path.join(__dirname, '../resources/Notes.png'),
+        path.join(__dirname, '../resources/Notes.ico')
+    ].filter(Boolean);
+
+    return candidates.find(iconPath => fs.existsSync(iconPath));
+}
+
 function createWindow() {
     const config = store.get('config');
     const windowConfig = config.window;
@@ -309,9 +361,16 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         },
-        icon: path.join(__dirname, '../resources/Notes.ico'),
         show: false
     };
+
+    // On macOS, keep dock icon controlled only via app.dock.setIcon().
+    if (process.platform !== 'darwin') {
+        const windowIconPath = getWindowIconPath();
+        if (windowIconPath) {
+            windowOptions.icon = windowIconPath;
+        }
+    }
 
     if (windowConfig.rememberPosition && windowConfig.x !== -1 && windowConfig.y !== -1) {
         windowOptions.x = windowConfig.x;
@@ -319,6 +378,7 @@ function createWindow() {
     }
 
     mainWindow = new BrowserWindow(windowOptions);
+    applyDockIcon();
     mainWindow.webContents.on('render-process-gone', (event, details) => {
         logError('Renderer process terminated unexpectedly', details);
         showUserErrorDialog(
@@ -511,10 +571,16 @@ function getTrayIconImage() {
     for (const iconPath of candidatePaths) {
         if (!fs.existsSync(iconPath)) continue;
         try {
-            const image = nativeImage.createFromPath(iconPath);
+            let image = nativeImage.createFromPath(iconPath);
             if (!image.isEmpty()) {
+                const isTemplateAsset = /template/i.test(path.basename(iconPath));
+                if (process.platform === 'darwin') {
+                    // Keep macOS menu bar icons at the expected size.
+                    image = image.resize({ width: 16, height: 16, quality: 'best' });
+                }
                 if (process.platform === 'darwin' && typeof image.setTemplateImage === 'function') {
-                    image.setTemplateImage(true);
+                    // Only mark explicitly named template assets as template images.
+                    image.setTemplateImage(isTemplateAsset);
                 }
                 return image;
             }
@@ -992,6 +1058,10 @@ app.whenReady().then(() => {
         version: app.getVersion(),
         platform: process.platform
     });
+
+    // Apply dock icon early, then keep it stable when creating windows.
+    applyDockIcon();
+
     applyStartWithWindowsSetting(store.get('config.general.startWithWindows'));
     createWindow();
 });

@@ -1,7 +1,7 @@
 {
   "name": "notes-electron",
   "version": "1.0.0",
-  "description": "A modern note-taking application for Windows",
+  "description": "A modern note-taking desktop application",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
@@ -10,7 +10,8 @@
     "test": "node run-tests.js",
     "build": "node scripts/run-electron-builder.js --win",
     "build:portable": "node scripts/run-electron-builder.js --win portable",
-    "build:installer": "node scripts/run-electron-builder.js --win nsis"
+    "build:installer": "node scripts/run-electron-builder.js --win nsis",
+    "build:mac": "node scripts/run-electron-builder.js --mac dmg zip"
   },
   "keywords": [
     "notes",
@@ -47,6 +48,14 @@
       ],
       "icon": "resources/Notes.ico",
       "signAndEditExecutable": false
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "resources/Notes.icns",
+      "category": "public.app-category.productivity"
     },
     "nsis": {
       "oneClick": false,

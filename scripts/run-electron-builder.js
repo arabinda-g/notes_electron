@@ -1,21 +1,23 @@
 const { spawnSync } = require("node:child_process");
 const path = require("node:path");
 
-const systemRoot = process.env.SystemRoot || "C:\\Windows";
-const system32Path = path.join(systemRoot, "System32");
-const cmdPath = path.join(system32Path, "cmd.exe");
+const env = { ...process.env };
 
-const currentPath = process.env.PATH || "";
-const hasSystem32InPath = currentPath
-  .toLowerCase()
-  .split(";")
-  .includes(system32Path.toLowerCase());
+if (process.platform === "win32") {
+  const systemRoot = process.env.SystemRoot || "C:\\Windows";
+  const system32Path = path.join(systemRoot, "System32");
+  const cmdPath = path.join(system32Path, "cmd.exe");
+  const currentPath = process.env.PATH || "";
+  const hasSystem32InPath = currentPath
+    .toLowerCase()
+    .split(path.delimiter)
+    .includes(system32Path.toLowerCase());
 
-const env = {
-  ...process.env,
-  ComSpec: process.env.ComSpec || cmdPath,
-  PATH: hasSystem32InPath ? currentPath : `${system32Path};${currentPath}`,
-};
+  env.ComSpec = process.env.ComSpec || cmdPath;
+  env.PATH = hasSystem32InPath
+    ? currentPath
+    : `${system32Path}${path.delimiter}${currentPath}`;
+}
 
 const builderCliPath = path.join(
   __dirname,
