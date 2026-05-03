@@ -500,13 +500,41 @@ function getStylesSubmenu() {
     });
 }
 
+function getTrayIconImage() {
+    // Prefer platform-appropriate images if present; fall back safely.
+    const candidatePaths = [
+        process.platform === 'darwin' ? path.join(__dirname, '../resources/NotesTemplate.png') : null,
+        path.join(__dirname, '../resources/Notes.png'),
+        path.join(__dirname, '../resources/Notes.ico')
+    ].filter(Boolean);
+
+    for (const iconPath of candidatePaths) {
+        if (!fs.existsSync(iconPath)) continue;
+        try {
+            const image = nativeImage.createFromPath(iconPath);
+            if (!image.isEmpty()) {
+                if (process.platform === 'darwin' && typeof image.setTemplateImage === 'function') {
+                    image.setTemplateImage(true);
+                }
+                return image;
+            }
+            logWarning('Tray icon file exists but could not be decoded', { iconPath });
+        } catch (e) {
+            logWarning('Failed to load tray icon candidate', { iconPath, error: e.message });
+        }
+    }
+
+    return nativeImage.createEmpty();
+}
+
 function createTray() {
-    const iconPath = path.join(__dirname, '../resources/Notes.ico');
-    if (!fs.existsSync(iconPath)) {
-        // Create a simple icon if not exists
-        tray = new Tray(nativeImage.createEmpty());
-    } else {
-        tray = new Tray(iconPath);
+    try {
+        tray = new Tray(getTrayIconImage());
+    } catch (e) {
+        // Never block app startup on tray icon failures.
+        logError('Failed to create system tray icon', { error: e.message });
+        tray = null;
+        return;
     }
 
     const contextMenu = Menu.buildFromTemplate([
